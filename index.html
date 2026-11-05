@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trygg</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="En spelifierad kurs för att gå från orolig till trygg anknytning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf8f3; --card:#ffffff; --ink:#2d2230; --muted:#8a7f86; --line:#efe5dc;
+  --rose:#ff6b8b; --rose-d:#d94a6b; --lav:#9b7bff; --lav-d:#7a58e0;
+  --peach:#ff9f45; --peach-d:#dd7e22; --teal:#2bb3a3; --teal-d:#1a8f82; --plum:#b4479b; --plum-d:#8c3278;
+  --green:#58cc02; --green-d:#46a302; --red:#ff4b4b; --red-d:#d93636;
+  --gold:#ffc800; --gold-d:#e0a800; --grey:#e5e0dc; --grey-d:#c9c2bc;
+  --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-weight:700;min-height:100vh;color-scheme:light}
+button{font-family:inherit;cursor:pointer;border:0}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding-block:0 110px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(253,248,243,.92);backdrop-filter:blur(10px);border-bottom:2px solid var(--line)}
+.top .in{max-width:560px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.brand{font-family:Fraunces,serif;font-size:22px;color:var(--rose)}
+.stats{display:flex;gap:14px;font-weight:900;font-size:15px}
+.stat{display:flex;align-items:center;gap:5px}
+.stat.fire{color:var(--peach)} .stat.xp{color:var(--lav)} .stat.car{color:#f07a2b}
+
+/* Hero */
+.hero{margin:18px 0 8px;padding:20px;border-radius:24px;background:linear-gradient(135deg,#ffe3ea,#efe6ff);position:relative;overflow:hidden}
+.hero h1{font-size:26px;line-height:1.15}
+.hero p{margin:8px 0 0;color:#5d4f5a;font-weight:600;line-height:1.45}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;margin-top:12px;box-shadow:0 2px 0 var(--line)}
+.lvl{margin-top:14px;height:12px;background:rgba(255,255,255,.7);border-radius:99px;overflow:hidden}
+.lvl i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--lav));border-radius:99px;transition:width .6s}
+.lvlt{font-size:12px;color:#6d5f69;margin-top:6px}
+
+/* Units & path */
+.unit{margin:26px 0 6px;border-radius:var(--radius);padding:16px 18px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 5px 0 rgba(0,0,0,.12)}
+.unit small{display:block;opacity:.9;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.unit h2{font-size:20px;margin-top:2px}
+.unit .ub{background:rgba(255,255,255,.22);border-radius:12px;padding:8px 10px;font-size:13px;white-space:nowrap}
+.path{display:flex;flex-direction:column;align-items:center;gap:22px;padding:22px 0 6px}
+.node{position:relative;width:76px;height:72px;border-radius:50%;font-size:30px;display:grid;place-items:center;transition:transform .1s}
+.node:active{transform:translateY(5px)}
+.node.locked{background:var(--grey);box-shadow:0 7px 0 var(--grey-d);filter:grayscale(1);opacity:.75}
+.node .ck{position:absolute;right:-4px;bottom:-4px;background:var(--gold);color:#fff;width:26px;height:26px;border-radius:50%;font-size:14px;display:grid;place-items:center;border:3px solid var(--bg)}
+.node.cur::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:4px solid currentColor;opacity:.35;animation:ring 1.6s infinite}
+@keyframes ring{0%{transform:scale(.9);opacity:.5}100%{transform:scale(1.25);opacity:0}}
+.tip{position:absolute;top:-44px;left:50%;transform:translateX(-50%);background:#fff;color:var(--ink);font-size:13px;font-weight:900;padding:7px 12px;border-radius:12px;border:2px solid var(--line);white-space:nowrap;animation:bob 1.4s ease-in-out infinite;text-transform:uppercase;letter-spacing:.5px}
+.tip::after{content:"";position:absolute;left:50%;bottom:-7px;width:10px;height:10px;background:#fff;border-right:2px solid var(--line);border-bottom:2px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+@keyframes bob{50%{transform:translateX(-50%) translateY(-5px)}}
+.nlabel{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;max-width:130px;line-height:1.2}
+.nwrap{display:flex;flex-direction:column;align-items:center}
+.chest{font-size:34px}
+
+/* Bottom nav */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid var(--line);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+.nav .in{max-width:560px;margin:0 auto;display:flex}
+.nav button{flex:1;background:none;padding:10px 4px 12px;font-size:11px;color:var(--muted);font-weight:800;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px}
+.nav button span{font-size:22px}
+.nav button.on{color:var(--rose)}
+.nav button.on span{transform:scale(1.12)}
+
+/* Cards & buttons */
+.card{background:var(--card);border:2px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0}
+.card h3{font-size:19px;margin-bottom:6px}
+.card p{font-weight:600;line-height:1.5;color:#4d4150;margin:6px 0}
+.btn{display:block;width:100%;padding:15px;border-radius:16px;font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:#fff;background:var(--green);box-shadow:0 5px 0 var(--green-d);transition:transform .08s}
+.btn:active{transform:translateY(5px);box-shadow:none}
+.btn.rose{background:var(--rose);box-shadow:0 5px 0 var(--rose-d)}
+.btn.lav{background:var(--lav);box-shadow:0 5px 0 var(--lav-d)}
+.btn.ghost{background:#fff;color:var(--muted);box-shadow:0 4px 0 var(--line);border:2px solid var(--line)}
+.btn:disabled{background:var(--grey);box-shadow:0 5px 0 var(--grey-d);color:#fff;cursor:default}
+.sectitle{font-size:24px;margin:22px 0 4px}
+.sub{color:var(--muted);font-weight:600;margin:0 0 6px;line-height:1.45}
+
+/* Lesson overlay */
+.ov{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column}
+.ov .bar{max-width:560px;width:100%;margin:0 auto;display:flex;align-items:center;gap:14px;padding:16px}
+.x{background:none;font-size:26px;color:var(--grey-d);padding:0 4px;line-height:1}
+.prog{flex:1;height:16px;background:var(--grey);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .4s;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)}
+.ov .body{flex:1;overflow:auto;max-width:560px;width:100%;margin:0 auto;padding:6px 16px 20px}
+.ov .foot{border-top:2px solid var(--line);background:#fff}
+.ov .foot .in{max-width:560px;margin:0 auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.ov .foot.good{background:#d7ffb8;border-color:#b8f28b}
+.ov .foot.bad{background:#ffdfe0;border-color:#ffc1c1}
+.fb{font-weight:900;font-size:18px;margin-bottom:6px}
+.fb.good{color:var(--green-d)} .fb.bad{color:var(--red-d)}
+.fbp{font-weight:600;line-height:1.45;margin:0 0 12px;color:#4d4150}
+.kicker{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin:10px 0 6px}
+.q{font-family:Fraunces,serif;font-size:24px;line-height:1.2;margin:0 0 18px}
+.txt{font-weight:600;font-size:17px;line-height:1.6;color:#3e3340}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-bottom-width:5px;border-radius:16px;padding:15px 16px;margin:10px 0;font-size:16px;font-weight:700;color:var(--ink);line-height:1.35}
+.opt.sel{border-color:#84d8ff;background:#ddf4ff;color:#1a6a94}
+.opt.right{border-color:var(--green);background:#d7ffb8}
+.opt.wrong{border-color:var(--red);background:#ffdfe0}
+.quote{background:linear-gradient(135deg,#fff3f6,#f4efff);border-radius:20px;padding:22px 20px;position:relative;margin:8px 0}
+.quote::before{content:"”";position:absolute;top:-18px;left:14px;font-family:Fraunces,serif;font-size:80px;color:var(--rose);opacity:.35}
+.quote .who{margin-top:14px;font-size:14px;color:var(--muted)}
+.quote .who b{color:var(--ink)}
+.study{background:#eefaf7;border:2px solid #c9eee7;border-radius:20px;padding:20px}
+.study .tag{display:inline-block;background:var(--teal);color:#fff;font-size:12px;padding:4px 10px;border-radius:99px;letter-spacing:.8px;text-transform:uppercase}
+.study .src{font-size:13px;color:var(--muted);margin-top:12px;font-weight:600}
+.filter{margin-top:14px;background:#fff8e5;border:2px dashed #ffd66b;border-radius:14px;padding:12px 14px;font-size:14px;font-weight:600;line-height:1.45;color:#6b5a2c}
+.mission{background:linear-gradient(135deg,#fff1e2,#ffe5ec);border-radius:20px;padding:22px}
+textarea{width:100%;min-height:140px;border:2px solid var(--line);border-radius:16px;padding:14px;font-family:inherit;font-size:16px;font-weight:600;resize:vertical;background:#fff;color:var(--ink)}
+textarea:focus{outline:none;border-color:var(--lav)}
+.big{font-size:64px;text-align:center;margin:18px 0 6px}
+.breath{width:200px;height:200px;margin:24px auto;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffd1dc,var(--rose));display:grid;place-items:center;color:#fff;font-weight:900;font-size:18px;transform:scale(.6);transition:transform 1s ease-in-out;box-shadow:0 10px 30px rgba(255,107,139,.35)}
+.done-xp{display:flex;gap:12px;justify-content:center;margin:18px 0}
+.pill{border-radius:16px;border:2px solid;padding:10px 16px;text-align:center;min-width:110px}
+.pill small{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.pill b{font-size:22px}
+
+/* Quiz hub, carrots, journal */
+.qcard{display:flex;gap:14px;align-items:center;cursor:pointer}
+.qcard .ic{font-size:34px;width:60px;height:60px;border-radius:16px;display:grid;place-items:center;flex:none}
+.scale{display:flex;gap:6px;margin:6px 0 14px}
+.scale button{flex:1;padding:14px 0;border-radius:12px;background:#fff;border:2px solid var(--line);border-bottom-width:4px;font-weight:900;font-size:16px;color:var(--ink)}
+.scale button.sel{background:#ddf4ff;border-color:#84d8ff;color:#1a6a94}
+.scale-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.meter{height:14px;background:var(--grey);border-radius:99px;overflow:hidden;margin:6px 0 12px}
+.meter i{display:block;height:100%;border-radius:99px}
+.carrot{display:flex;gap:14px;align-items:flex-start}
+.carrot .ic{font-size:30px;width:54px;height:54px;flex:none;border-radius:14px;display:grid;place-items:center;background:#fff1e2}
+.carrot.lock{opacity:.55}
+.carrot.lock .ic{background:var(--grey);filter:grayscale(1)}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+input[type=range]{width:100%;accent-color:var(--rose)}
+.num{font-size:40px;font-family:Fraunces,serif;color:var(--rose);text-align:center}
+.cnt{display:flex;align-items:center;justify-content:space-between;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0}
+.cnt .ctl{display:flex;align-items:center;gap:10px}
+.cnt button{width:36px;height:36px;border-radius:10px;background:var(--bg);border:2px solid var(--line);font-size:20px;font-weight:900;color:var(--ink)}
+.refl{border-left:4px solid var(--lav);padding:6px 12px;margin:12px 0}
+.refl small{color:var(--muted);display:block;margin-bottom:4px}
+.refl p{margin:0;font-weight:600;white-space:pre-wrap}
+.src a{color:var(--lav-d)}
+.src li{margin:8px 0;font-weight:600;line-height:1.4}
+.note{font-size:13px;color:var(--muted);font-weight:600;line-height:1.5;text-align:center;margin:26px 8px}
+.confetti{position:fixed;top:-20px;width:10px;height:14px;z-index:80;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.modal{position:fixed;inset:0;background:rgba(45,34,48,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.modal .sheet{background:#fff;width:100%;max-width:560px;border-radius:26px 26px 0 0;padding:24px 18px calc(22px + env(safe-area-inset-bottom));animation:up .3s ease-out}
+@keyframes up{from{transform:translateY(100%)}}
+.hide{display:none!important}
+.scene{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.sn{font-weight:600;font-size:16px;line-height:1.55;color:#5d4f5a}
+.bub{max-width:82%;padding:11px 14px;border-radius:18px;font-size:16px;line-height:1.4;font-weight:700}
+.bub.e{align-self:flex-end;background:var(--rose);color:#fff;border-bottom-right-radius:6px}
+.bub.m{align-self:flex-start;background:#fff;border:2px solid var(--line);border-bottom-left-radius:6px}
+.who{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:-6px}
+.who.e{align-self:flex-end}
+.th{align-self:flex-end;max-width:82%;font-style:italic;color:var(--lav-d);background:#f1ebff;border-radius:18px;padding:10px 14px;font-size:15px;font-weight:700}
+.teaser li{margin:10px 0;font-weight:700;line-height:1.4}
+.quick{display:flex;gap:12px;align-items:center;margin:12px 0 0;flex-wrap:wrap}
+.quick .qs{flex:1;min-width:150px;background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 14px}
+.quick .qs b{font-size:20px;display:block}
+.quick .qs small{color:var(--muted);font-size:12px;line-height:1.3;display:block}
+.quick .btn{flex:1;min-width:150px;width:auto;font-size:14px;padding:13px 10px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.pcard{position:relative;background:linear-gradient(160deg,#fff,#f4efff);border:2px solid #e3d9ff;border-bottom-width:5px;border-radius:18px;padding:14px 14px 18px;min-width:0}
+.pcard small{color:var(--lav-d);font-size:11px;text-transform:uppercase;letter-spacing:.8px}
+.pcard p{margin:6px 0 0;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+.pdel{position:absolute;top:8px;right:8px;background:none;color:var(--grey-d);font-size:13px;font-weight:900}
+.pdel.armed{color:var(--red-d)}
+.peace{margin-top:14px;border-radius:20px;padding:18px;color:#fff;background:linear-gradient(135deg,var(--teal),#3f8fd6);box-shadow:0 5px 0 var(--teal-d)}
+.peace .ph{font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:1px;opacity:.95}
+.peace .pp{margin:8px 0 0;font-weight:600;font-size:14px;line-height:1.45;opacity:.95}
+.pnums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 10px;text-align:center}
+.pnums div{background:rgba(255,255,255,.18);border-radius:14px;padding:10px 4px}
+.pnums b{display:block;font-family:Fraunces,serif;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.pnums small{font-size:12px;opacity:.95}
+.peace input[type=date]{flex:1;min-width:0;border:0;border-radius:12px;padding:12px;font-family:inherit;font-weight:800;font-size:15px;color:var(--ink)}
+.peace .row{margin-top:12px;align-items:center}
+.peace .row .btn{flex:none;padding:12px 18px}
+.pfight{margin-top:12px;background:rgba(255,255,255,.18);color:#fff;border-radius:12px;padding:9px 14px;font-weight:800;font-size:13px}
+.pfight[data-armed]{background:#fff;color:var(--red-d)}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="in">
+  <div class="brand">trygg.</div>
+  <div class="stats">
+    <div class="stat fire" title="Streak">🔥 <span id="sStreak">0</span></div>
+    <div class="stat car" title="Morötter">🥕 <span id="sCar">0</span></div>
+    <div class="stat xp" title="XP">✦ <span id="sXp">0</span></div>
+  </div>
+</div></header>
+
+<main class="wrap" id="view"></main>
+
+<nav class="nav"><div class="in">
+  <button data-tab="path" class="on"><span>🗺️</span>Stigen</button>
+  <button data-tab="quiz"><span>🔍</span>Lär känna dig</button>
+  <button data-tab="proof"><span>🃏</span>Bevis</button>
+  <button data-tab="carrots"><span>🥕</span>Morötter</button>
+  <button data-tab="journal"><span>📓</span>Dagbok</button>
+</div></nav>
+
+<script>
+/* =========================================================
+   INNEHÅLL — redigera fritt. Allt är skrivet med egna ord;
+   idéer från böcker är sammanfattningar, inte citat.
+   ========================================================= */
+const STAGE = { name:"Fas 2 · 6–12 månader", desc:"Förälskelsen lägger sig och vardagen tar över. Det är här trygghet byggs – eller oro tar över." };
+
+const UNITS = [
+{ id:"u1", title:"Förstå din loop", week:"Vecka 1", color:"var(--rose)", shadow:"var(--rose-d)",
+  carrot:{ icon:"🗺️", title:"Kärlekskartan", text:"John Gottman kallar det ”love maps”: hur väl du känner din partners inre värld – hans stress, drömmar, små glädjeämnen. Par som har detaljerade kartor över varandra klarar påfrestningar bättre.", mission:"Ställ en nyfiken fråga om hans värld varje dag den här veckan – utan agenda. T.ex. ”Vad har tagit mest energi från dig den här veckan?”" },
+  lessons:[
+  { id:"s1a", icon:"📖", title:"Story: Den tysta lördagen", steps:[
+    {t:"scene", h:"Den tysta lördagen", lines:[
+      ["n","Ella och Max har varit tillsammans i åtta månader. Max spelar fotboll varje lördag."],
+      ["e","Lycka till idag! ❤️"],
+      ["n","Matchen borde vara slut klockan tre. Klockan fyra har han fortfarande inte svarat."],
+      ["th","Han brukade alltid skriva direkt efter matchen…"],
+      ["n","Ella öppnar platsappen. Han är hemma hos en kompis."],
+      ["e","Hur gick det?"],
+      ["e","Hallå?? 😅"],
+      ["e","Okej, hoppas du har kul då"],
+      ["m","Haha sorry, mobilen dog! Vi vann 3–1 ⚽"],
+      ["n","Lättnaden varar i tio minuter. På kvällen frågar hon två gånger om de är okej."],
+      ["m","Ja Ella, vi är okej."],
+      ["n","Han låter trött. Ella ligger vaken och spelar upp dagen igen."]]},
+    {t:"pick", q:"Vad hände egentligen i Ella?", o:[
+      {t:"Hennes larmsystem tolkade tystnad som fara", r:"Precis. Ingenting hade hänt mellan dem, men larmet gick ändå."},
+      {t:"Max betedde sig illa", r:"Max spelade fotboll och hans mobil dog. Det som gjorde dagen tung skedde inuti Ella."},
+      {t:"Hon brydde sig bara mycket", r:"Det gör hon. Men kollandet och frågorna gav henne mer oro, inte mindre."}]},
+    {t:"teaser", h:"Så här fixar vi det", items:["Förstå vad anknytning är och varför ditt larm är så känsligt","Se din loop: trigger, berättelse, handling","Skilja på fakta och oro","Sluta med fiskefrågor och tester","Bryta kollandet med impulsprotokollet","Veta att trygghet går att lära sig"]}
+  ]},
+  { id:"l1", icon:"🧩", title:"Vad är anknytning?", steps:[
+    {t:"info", h:"Varifrån kommer det här?", p:"Anknytningsteorin började med John Bowlby och Mary Ainsworth, som studerade hur små barn knyter an till sina föräldrar. 1987 visade forskarna Cindy Hazan och Phillip Shaver att samma mönster syns i vuxnas kärleksrelationer."},
+    {t:"info", h:"Två skalor, fyra stilar", p:"Vuxen anknytning brukar mätas på två skalor: oro (rädsla att bli lämnad) och undvikande (obehag med närhet). Låg på båda = trygg. Hög oro = orolig. Högt undvikande = undvikande. Högt på båda = rädd-undvikande."},
+    {t:"idea", who:"Amir Levine & Rachel Heller", book:"Attached", p:"Behovet av närhet är inte svaghet utan biologi. Den oroliga stilen har ett extra känsligt larmsystem som snabbt fångar upp minsta tecken på distans – och sedan har svårt att stänga av larmet."},
+    {t:"check", q:"Vilka två skalor beskriver vuxen anknytning?", o:["Oro och undvikande","Introvert och extrovert","Självkänsla och humör","Kärleksspråk och behov"], a:0, why:"Oro (rädsla för att bli lämnad) och undvikande (obehag med närhet) är de två skalorna forskningen använder."},
+    {t:"reflect", key:"r_l1", q:"När kände du för första gången att kärlek var något du behövde förtjäna?"}
+  ]},
+  { id:"l2", icon:"🔁", title:"Din oroliga loop", steps:[
+    {t:"pick", q:"Han svarar inte på flera timmar. Vad händer först i dig?", o:[
+      {t:"Jag börjar gå igenom vad jag kan ha sagt fel", r:"Det är skam-spåret: hjärnan letar fel hos dig. Lägg märke till det utan att döma."},
+      {t:"Jag känner en klump i magen och blir rastlös", r:"Kroppen slår larm först. Det är en bra ingång – kroppen går att lugna (vecka 2)."},
+      {t:"Jag vill skriva igen eller kolla om han varit aktiv", r:"Impulsen att agera. Det är just den här impulsen vi ska lära oss att vänta ut."},
+      {t:"Jag drar mig undan och väntar ut honom", r:"Tillbakadragande för att se om han märker det är också en del av loopen – ett test, inte lugn."}]},
+    {t:"info", h:"Loopen", p:"Utlösare → känsla → berättelse (”han håller på att tappa intresset”) → handling (bevisa, fråga, kolla, dra dig undan) → kort lättnad → mer oro. Lättnaden lär hjärnan att handlingen ”fungerade”, så loopen blir starkare."},
+    {t:"idea", who:"Amir Levine & Rachel Heller", book:"Attached", p:"De kallar det protestbeteenden: överdrivna försök att få kontakt, att gå tyst, hålla räkningen, försöka göra partnern svartsjuk eller hota att gå. De lugnar för stunden men skjuter ofta partnern längre bort."},
+    {t:"check", q:"Vilket av de här är ett protestbeteende?", o:["Säga ”jag har saknat dig idag”","Gå tyst för att se om han märker det","Träffa en vän på kvällen","Göra en andningsövning"], a:1, why:"Att gå tyst för att testa honom är en protest. Att säga vad du känner, rakt, är det trygga alternativet."},
+    {t:"reflect", key:"r_l2", q:"Beskriv senaste gången loopen gick: vad hände, vilken berättelse sa du till dig själv, och vad gjorde du?"}
+  ]},
+  { id:"l2b", icon:"⚖️", title:"Fakta eller oro?", steps:[
+    {t:"info", h:"Två lager", p:"Varje gång något händer finns två lager: det som faktiskt hände, och berättelsen oron lägger ovanpå. ”Han svarade efter tre timmar” är fakta. ”Han tappar intresset” är oro."},
+    {t:"info", h:"Vanliga orostankar", p:"”Säger han det inte snart, så kommer han aldrig att säga det.” ”Han nöjer sig bara med mig.” ”En kall morgon betyder att känslorna försvinner.” ”Han tycker att jag är tråkig.” Känns någon bekant? Det är oron som pratar, inte verkligheten."},
+    {t:"check", q:"Vilket av de här är fakta?", o:["Han vill inte vara med mig längre","Han var tyst vid frukosten","Han tycker att jag är jobbig"], a:1, why:"Bara det du kan se och höra är fakta. Resten är tolkningar."},
+    {t:"pick", q:"Max svarar ”ok” utan emoji. Vad är oro?", o:[
+      {t:"”Han svarade ok.”", r:"Det är fakta. Inget mer, inget mindre."},
+      {t:"”Han är irriterad på mig.”", r:"Det är oro. Han kan lika gärna sitta i ett möte."},
+      {t:"”Han var upptagen.”", r:"Det är också en gissning, men en snällare sådan. Märk hur fri du är att välja berättelse."}]},
+    {t:"reflect", key:"r_l2b", q:"Skriv ner dina tre vanligaste orostankar. Skriv sedan bredvid varje: vad är fakta?"}
+  ]},
+  { id:"l2c", icon:"🎣", title:"Fiskefrågor och tester", steps:[
+    {t:"info", h:"Fiskefrågor", p:"En fiskefråga är en fråga som egentligen ber om bekräftelse: ”Tycker du att jag är fantastisk?” eller ”Förtjänar jag inte…?”. De finns också i förklädnad, som skämt: ”Du är så besatt av mig” eller ”Jag vet att du är galen i mig”."},
+    {t:"info", h:"Tester", p:"Ett test är när du gör eller säger något för att se hur han reagerar: ”Du har inte bjudit in mig”, en pik, att gå tidigt från en fest, eller att lägga dig nära för att se om han kramar dig. Testerna mäter honom, men de ger dig ingen trygghet."},
+    {t:"info", h:"Tumregeln", p:"Handlar meningen om hans känslor för dig? Låt bli. Säg något om dig, om honom eller om världen i stället."},
+    {t:"check", q:"Vilket av de här är en förklädd fiskefråga?", o:["”Vad tyckte du om filmen?”","”Haha, du kan ju inte leva utan mig”","”Jag längtar till helgen”"], a:1, why:"Skämtet ber egentligen om att han ska bekräfta sina känslor."},
+    {t:"check", q:"Du lägger dig nära honom i soffan för att se om han lägger armen om dig. Vad är det?", o:["Närhet","Ett fysiskt test","Kärleksspråk"], a:1, why:"Det är närhet när du gör det för att du vill. Det blir ett test när du väntar på hans reaktion som ett bevis."},
+    {t:"reflect", key:"r_l2c", q:"Vilka fiskefrågor och tester brukar du använda? Skriv ner dem, så känner du igen dem nästa gång."}
+  ]},
+  { id:"l3", icon:"📱", title:"Varför kollandet inte hjälper", steps:[
+    {t:"info", h:"Säkerhetsbeteenden", p:"Att kolla hans plats eller mobil är vad ångestforskningen kallar ett säkerhetsbeteende. Det sänker oron i några minuter men håller den vid liv på sikt, eftersom du aldrig får lära dig att du klarar osäkerheten utan att kolla."},
+    {t:"study", h:"Bekräftelsesökande", p:"Psykologen Thomas Joiner och kollegor har studerat överdrivet sökande av bekräftelse. Deras forskning kopplar det till att omgivningen över tid drar sig undan – trots att personen bara ville känna sig trygg.", src:"Joiner m.fl., forskning om excessive reassurance seeking (1990-talet och framåt)"},
+    {t:"pick", q:"Ärligt: vad hoppas du hitta när du kollar?", o:[
+      {t:"Bevis på att allt är okej", r:"Men lugnet håller sällan. Nästa gång behövs ett nytt bevis. Tryggheten måste komma inifrån."},
+      {t:"Bevis på det jag är rädd för", r:"Då förbereder du dig för smärta. Men oftast hittar du något tvetydigt – och oron växer."},
+      {t:"Jag vet inte, det är en vana", r:"Ärligt svar. Vanor bryts bäst genom att göra dem svårare och ha en ersättare redo."}]},
+    {t:"info", h:"Impulsprotokollet", p:"1) Säg det: ”Det här är impulsen att kolla.” 2) Sätt en timer på 10 minuter. 3) Skriv en rad: vad är jag rädd att hitta? 4) När timern ringer – märk att impulsen nästan alltid har sjunkit."},
+    {t:"mission", p:"Flytta platsappen från hemskärmen idag, in i en mapp du måste söka efter. Kör impulsprotokollet varje gång du vill kolla."}
+  ]},
+  { id:"l4", icon:"🌱", title:"Anknytning är inte ett öde", steps:[
+    {t:"study", h:"Förvärvad trygghet", p:"Forskare (bl.a. Mary Main och Glenn Roisman) beskriver ”earned security”: vuxna som haft en otrygg start men utvecklat ett tryggt sätt att relatera, genom reflektion, terapi och trygga relationer.", src:"Roisman m.fl. (2002), Child Development"},
+    {t:"idea", who:"Amir Levine & Rachel Heller", book:"Attached", p:"Anknytningsstil kan förändras genom livet. Medvetenhet om ditt eget mönster, och att öva nya beteenden, är ett av de starkaste verktygen."},
+    {t:"check", q:"Sant eller falskt: din anknytningsstil är fast för resten av livet.", o:["Sant","Falskt"], a:1, why:"Falskt. Stilar är mönster, inte diagnoser, och de kan skifta mot trygghet."},
+    {t:"reflect", key:"r_l4", q:"Hur skulle en trygg version av dig reagera en kväll när han är tyst och distanserad?"}
+  ]},
+  { id:"s1b", icon:"🌟", title:"Story: Samma lördag, trygga Ella", steps:[
+    {t:"scene", h:"Samma lördag, med trygga Ella", lines:[
+      ["e","Lycka till idag! ⚽"],
+      ["n","Klockan fyra har Max inte svarat. Ella känner suget i magen."],
+      ["th","Det här är impulsen att kolla. Jag sätter en timer på tio minuter."],
+      ["n","När timern ringer har suget nästan försvunnit. Hon går på brunch med Sara och glömmer mobilen i väskan."],
+      ["m","Vi vann 3–1!! Mobilen dog, sorry. Ses ikväll? 🍕"],
+      ["e","Grattis! Ja, gärna 😊"],
+      ["n","På kvällen berättar Max om sitt mål, och Ella om brunchen. De skrattar. Ingen behöver fråga om de är okej."]]},
+    {t:"reflect", key:"r_s1b", q:"Vad gjorde trygga Ella annorlunda? Vad av det kan du göra nästa gång?"}
+  ]}
+]},
+{ id:"u2", title:"Lugna dig själv", week:"Vecka 2", color:"var(--lav)", shadow:"var(--lav-d)",
+  carrot:{ icon:"🎢", title:"Nytt tillsammans", text:"Arthur Aron och kollegor fann att par som gör nya, lite spännande saker tillsammans upplever högre relationskvalitet än par som bara gör trevliga, invanda saker. Nyhet påminner hjärnan om början.", mission:"Föreslå en helt ny aktivitet ihop – något ingen av er gjort: en matlagningskurs, klättring, en ny stadsdel. Lätt i tonen, utan press." },
+  lessons:[
+  { id:"s2a", icon:"📖", title:"Story: Middagen", steps:[
+    {t:"scene", h:"Middagen", lines:[
+      ["n","Tisdag kväll. Max är tyst vid middagen och skrollar på mobilen."],
+      ["th","Han har tråkigt med mig. Han tänker på någon annan. Han vill göra slut."],
+      ["n","Ellas bröst drar ihop sig. Hon börjar prata snabbt om allt och inget."],
+      ["e","Är du sur på mig?"],
+      ["m","Nej? Jag är bara trött."],
+      ["n","Klockan ett på natten skriver Ella ett långt meddelande om hur hon känner. Hon raderar det, skriver om det, och skickar det till slut."],
+      ["m","Ella, jag var bara trött. Jag sov. Kan vi prata imorgon?"]]},
+    {t:"pick", q:"Var tog det fel?", o:[
+      {t:"När hon gav sin rädsla rätt i stället för att lugna kroppen", r:"Ja. Kroppen slog larm, och berättelsen tog över innan hon hann andas."},
+      {t:"När Max skrollade", r:"Det var utlösaren, men inte problemet. Han var trött."},
+      {t:"När hon skickade meddelandet", r:"Där syntes det mest, men loopen startade långt innan."}]},
+    {t:"teaser", h:"Så här fixar vi det", items:["Lugna kroppen med fysiologiska suckar","Sätta ord på känslan så att den krymper","Förstå dina tårar och be om närhet direkt","Vara snäll mot dig själv i stället för hård","Grubbla på schema och skicka bara trygga sms","SOS-stegen och din bevislista"]}
+  ]},
+  { id:"l5", icon:"🌬️", title:"Kroppen först", steps:[
+    {t:"study", h:"Fem minuter om dagen", p:"I en randomiserad studie från Stanford (2023) fick vuxna andas på olika sätt fem minuter om dagen i 28 dagar. ”Cyclic sighing” – två inandningar och en lång utandning – höjde det positiva humöret mer än mindfulnessmeditation och sänkte andningstakten.", src:"Balban m.fl. (2023), Cell Reports Medicine"},
+    {t:"breathe"},
+    {t:"check", q:"Vad är nyckeln i en fysiologisk suck?", o:["Hålla andan länge","En lång, långsam utandning","Andas snabbt genom munnen","Räkna till hundra"], a:1, why:"Den förlängda utandningen är det som lugnar systemet."},
+    {t:"mission", p:"Gör tre fysiologiska suckar varje gång du känner oron stiga den här veckan – innan du gör något annat."}
+  ]},
+  { id:"l6", icon:"🏷️", title:"Sätt ord på känslan", steps:[
+    {t:"study", h:"Namnge för att tämja", p:"I en hjärnavbildningsstudie lät Matthew Lieberman och kollegor deltagare sätta ord på känslor i bilder. Att namnge känslan dämpade aktiviteten i amygdala, hjärnans larmcentral.", src:"Lieberman m.fl. (2007), Psychological Science"},
+    {t:"pick", q:"Vilket ord ligger närmast när han känns distanserad?", o:[
+      {t:"Rädd", r:"Säg det inåt: ”Jag känner rädsla.” Bara det gör den mindre."},
+      {t:"Ensam", r:"Ensamhet i en relation är verklig och värd omtanke – från dig själv först."},
+      {t:"Avvisad", r:"Lägg märke till: känns det avvisat, eller vet du att det är det? Det är skillnad."},
+      {t:"Otillräcklig", r:"Det är ofta kärnsåret. Vecka 3 jobbar med just det."}]},
+    {t:"info", h:"Din nya mening", p:"”Jag känner den gamla rädslan för att bli lämnad. Det är en känsla, inte ett faktum. Han får vara tyst. Jag är okej just nu.”"},
+    {t:"reflect", key:"r_l6", q:"Skriv din egen version av meningen ovan, med dina ord."}
+  ]},
+  { id:"l6b", icon:"💧", title:"Tårar som signal", steps:[
+    {t:"info", h:"Varför just med honom?", p:"Många är lugna och sansade med vänner och kollegor, men gråter lätt med sin partner. Det är inte svaghet. Det är den person ditt anknytningssystem är inställt på, så det är där larmet går."},
+    {t:"study", h:"Tårar väcker omsorg", p:"Psykologen Ad Vingerhoets har forskat på gråt i decennier. Hans slutsats är att tårar framför allt är en social signal: de visar att vi behöver hjälp och väcker tröst och omsorg hos andra.", src:"Vingerhoets, Why Only Humans Weep (2013)"},
+    {t:"info", h:"Fällan", p:"Om han mjuknar mest när du gråter, lär sig ditt nervsystem att tårar är vägen till närhet. Han lär sig samtidigt att intimitet betyder kris. Ni bygger kärleken kring sorg i stället för kring glädje, och han börjar se dig som ledsnare än du är."},
+    {t:"pick", q:"När du börjar gråta med honom – vad vill du egentligen innerst inne?", o:[
+      {t:"Bli tröstad, få en kram", r:"Det är ett helt rimligt behov. Det går att be om direkt, utan att tårarna först måste komma."},
+      {t:"Att han ska visa att han bryr sig", r:"Du söker bevis. Kom ihåg vecka 1: bevis lugnar bara en kort stund."},
+      {t:"Att han ska förstå hur ont något gjorde", r:"Då handlar det om att bli förstådd. Säg det i ord när du är lugn, så hör han det bättre."},
+      {t:"Det är verklig sorg över något", r:"Då ska tårarna få finnas. Det här handlar om tårar som söker närhet, inte om äkta sorg."}]},
+    {t:"check", q:"Vilket är det tryggaste sättet att få närhet?", o:["Gråta tills han tröstar","”Jag skulle behöva en kram just nu”","Bli tyst och vänta på att han märker det"], a:1, why:"Ett direkt, lugnt önskemål är lätt för honom att säga ja till, och ingen behöver vara ledsen först."},
+    {t:"reflect", key:"r_l6b", q:"Tänk på senaste gången du grät med honom. Vad behövde du egentligen, och hur hade du kunnat be om det i ord?"}
+  ]},
+  { id:"l6c", icon:"🌊", title:"När tårarna kommer", steps:[
+    {t:"info", h:"Fyra steg", p:"1) Pausa: ”Jag märker att jag blir ledsen, jag behöver fem minuter.” 2) Gör tre fysiologiska suckar. 3) Fråga dig: är det sorg över något verkligt, eller längtan efter närhet? 4) Sorg – gråt och säg vad det handlar om. Längtan – be om närheten direkt."},
+    {t:"info", h:"Det är inte fel att gråta", p:"Riktig sorg ska få finnas, och en trygg partner kan ta emot den. Målet är inte att aldrig gråta. Målet är att dina tårar betyder något verkligt, och att närhet kan komma på andra vägar också."},
+    {t:"check", q:"Han är lite frånvarande vid middagen och du känner tårarna komma. Vad är ett tryggt steg?", o:["Låta tårarna komma så att han märker hur du mår","Andas, och säga: ”Jag har saknat dig idag. Kan vi sitta nära efter maten?”","Lämna bordet utan att säga något"], a:1, why:"Du lugnar dig själv först och ber sedan om exakt det du behöver, på ett varmt sätt."},
+    {t:"mission", p:"Den här veckan: be om närhet med orden ”Jag behöver…” minst en gång, när du är lugn. Räkna det i dagboken."}
+  ]},
+  { id:"l7", icon:"💗", title:"Självmedkänsla", steps:[
+    {t:"study", h:"Tre delar", p:"Psykologen Kristin Neff beskriver självmedkänsla som tre delar: vänlighet mot dig själv, insikten att alla människor kämpar (du är inte ensam), och medveten närvaro – att se känslan utan att drunkna i den.", src:"Kristin Neff, forskning om self-compassion"},
+    {t:"check", q:"Vilken av dessa ingår INTE i självmedkänsla?", o:["Vänlighet mot dig själv","Gemensam mänsklighet","Självkritik för att motivera dig","Medveten närvaro"], a:2, why:"Självkritik ingår inte – forskningen pekar snarare på att vänlighet gör det lättare att förändras."},
+    {t:"reflect", key:"r_l7", q:"Skriv till dig själv som till en bästa vän som känner exakt som du gör nu."}
+  ]},
+  { id:"l8", icon:"⏰", title:"Mindre grubbel, tryggare sms", steps:[
+    {t:"study", h:"Oro på schema", p:"Thomas Borkovec och kollegor testade att ge oro en fast tid på dagen. Deltagare som sköt upp sitt grubbel till ett ”orosfönster” oroade sig mindre totalt.", src:"Borkovec m.fl. (1983), Behaviour Research and Therapy"},
+    {t:"info", h:"Två regler", p:"1) Bekräftelse-paus: skriv ner frågan (”Är vi okej?”) och vänta till kvällen. Spelar den fortfarande roll – fråga en gång, lugnt. 2) Sms-regeln: skicka bara det du hade skickat om du kände dig trygg."},
+    {t:"check", q:"Vilket sms är tryggt?", o:["”Är du arg på mig??”","Tre sms i rad utan svar","”Hoppas dagen är bra. Ses ikväll?”","Inget alls, för att se om han hör av sig"], a:2, why:"Varmt, enkelt, utan krav på ett visst svar. De andra kommer ur oro."},
+    {t:"mission", p:"Välj en fast tid för ditt orosfönster (15 min). När grubblet kommer utanför: ”Det sparar jag till klockan 18.”"}
+  ]},
+  { id:"l8b", icon:"🆘", title:"SOS-stegen och bevislistan", steps:[
+    {t:"info", h:"SOS-stegen", p:"1) Stanna. 2) Andas in på 4, ut på 6, några gånger. 3) Skriv ner tanken. 4) Vänta 10 minuter. 5) Fråga: fakta eller oro? 6) Läs din bevislista. 7) Gör något för dig själv."},
+    {t:"info", h:"Obekvämt betyder att det fungerar", p:"När du slutar söka bekräftelse kan det kännas tomt, nästan som abstinens. Inom beteendepsykologin vet man att ett sug ofta blir starkare en kort tid precis när man slutar ge efter för det, innan det klingar av. Tomheten är ett tecken på att du bryter mönstret."},
+    {t:"info", h:"Insikt utan skuld", p:"När du märker att du fiskat eller testat: säg ”där var den, intressant” i stället för ”vad är det för fel på mig”. Självmedkänsla gör det lättare att ändra sig, skuld gör det svårare."},
+    {t:"check", q:"Du har slutat ställa fiskefrågor och känner dig rastlös och tom. Vad betyder det?", o:["Att det inte fungerar","Att du bryter ett mönster","Att relationen är på väg att ta slut"], a:1, why:"Tomheten är en del av processen. Den går över."},
+    {t:"mission", p:"Öppna fliken Bevis och lägg in dina första tre kort: saker han gjort som visar att han vill ha dig. Fokusera på stora val, som att han valt dig, presenterat dig eller planerat med dig."}
+  ]},
+  { id:"s2b", icon:"🌟", title:"Story: Middagen, med trygga Ella", steps:[
+    {t:"scene", h:"Middagen, med trygga Ella", lines:[
+      ["n","Max är tyst och skrollar. Ella märker hur bröstet drar ihop sig."],
+      ["th","Jag känner rädsla. Det är en känsla, inte ett faktum."],
+      ["n","Hon tar två djupa suckar och lägger ner gaffeln."],
+      ["e","Du verkar trött. Tuff dag?"],
+      ["m","Ja… chefen var på mig hela dagen. Förlåt, jag är inte så rolig ikväll."],
+      ["e","Du behöver inte vara rolig. Vill du berätta eller bara vila?"],
+      ["n","Max lägger ner mobilen och börjar berätta. Ella sover gott den natten."]]},
+    {t:"reflect", key:"r_s2b", q:"Vilket av veckans verktyg använde Ella? Vilket vill du prova först?"}
+  ]}
+]},
+{ id:"u3", title:"Ditt eget liv", week:"Vecka 3", color:"var(--peach)", shadow:"var(--peach-d)",
+  carrot:{ icon:"🙏", title:"Tacksamhet som binder", text:"Psykologen Sara Algoe beskriver tacksamhet som något som ”hittar, påminner och binder”: att uttrycka uppskattning hjälper båda att se värdet i relationen och kommer varandra närmare.", mission:"Säg en specifik sak du uppskattar hos honom – och släpp det. Inget behov av ett svar tillbaka. ”Jag tyckte om hur du tog hand om din mamma i söndags.”" },
+  lessons:[
+  { id:"s3a", icon:"📖", title:"Story: Allt för Max", steps:[
+    {t:"scene", h:"Allt för Max", lines:[
+      ["n","Max har verkat lite avlägsen. Ella bestämmer sig för att visa hur mycket hon älskar honom."],
+      ["n","Hon ställer in pilates och middagen med tjejerna. Hon lagar hans favoritmat, köper en present och planerar hela hans helg."],
+      ["m","Oj, tack! Vad gulligt."],
+      ["n","Sedan sätter han sig och kollar matchen."],
+      ["th","Efter allt jag gjort… märker han inte ens det?"],
+      ["n","Ella börjar gråta. Max blir stel och osäker."],
+      ["m","Vad har hänt? Jag fattar inte…"]]},
+    {t:"pick", q:"Vad var det som gick snett?", o:[
+      {t:"Hon gav för att få något tillbaka", r:"Ja. Gåvan bar på en förväntan, och när den inte uppfylldes blev den till sorg."},
+      {t:"Max var otacksam", r:"Han tackade. Han visste bara inte att presenten var ett test."},
+      {t:"Hon gav upp sitt eget liv", r:"Det också. Hon ställde in det som gör henne till henne."}]},
+    {t:"teaser", h:"Så här fixar vi det", items:["Känna igen martyren, mamman och managern","Välja självrespekt framför att behaga","Bygga ett eget rikt liv","Gå från offer till skapare","Sluta jämföra dig","Vara samma varma du, oavsett hans humör"]}
+  ]},
+  { id:"l9", icon:"👑", title:"Martyren, mamman, managern", steps:[
+    {t:"idea", who:"Margarita Nazarenko", book:"Being HER (podcast)", p:"Nazarenko beskriver tre roller som oroliga kvinnor ofta glider in i: martyren som ger tills hon är bitter, mamman som tar hand om och fixar honom, och managern som styr och planerar allt. Alla tre är överfungerande – och dödar dragningen."},
+    {t:"pick", q:"Vilken roll känner du igen dig mest i?", o:[
+      {t:"Martyren – jag ger och ger", r:"Ge fritt eller inte alls. Gåvor med dolda förväntningar blir till skuld."},
+      {t:"Mamman – jag tar hand om honom", r:"Han är en vuxen partner, inte ett projekt. Omtanke ja, uppfostran nej."},
+      {t:"Managern – jag har koll på allt", r:"Kontroll känns tryggt men lämnar inget utrymme för honom att ta initiativ."},
+      {t:"Lite av alla", r:"Vanligt. Lägg märke till vilken som dyker upp när oron är som störst."}]},
+    {t:"info", h:"Givar-kollen", p:"Innan en gest, ett sms eller en komplimang: ”Ger jag det här för att få kontakt, eller för att få ett svar?” Kontakt – ge det och släpp. Ett svar – vänta en timme."},
+    {t:"check", q:"Du vill skicka ett långt kärleksfullt sms för att han verkade sval i morse. Vad gäller?", o:["Skicka direkt, mer kärlek är alltid bra","Vänta en timme och kolla motivet","Skicka inget alls för att straffa honom"], a:1, why:"Motivet avgör. Ur oro blir det bevisande; ur trygghet blir det en gåva."}
+  ]},
+  { id:"l10", icon:"🐈‍⬛", title:"Självrespekt slår snällhet", steps:[
+    {t:"idea", who:"Sherry Argov", book:"Why Men Love Bitches", p:"Trots titeln handlar boken inte om att vara elak. Argovs ”bitch” är en kvinna med självrespekt som inte överger sig själv för att behaga. Den som alltid är tillgänglig och anpassar sig kan uppfattas som att hon inte värderar sig själv."},
+    {t:"info", h:"Trygghetsfiltret", p:"Vi tar självrespekten – inte spelen. Att låtsas vara upptagen eller dra sig undan för att väcka jakt är fortfarande den oroliga loopen. Skillnaden: du har ett eget liv på riktigt, och du är varm när ni ses."},
+    {t:"check", q:"Vad menar Argov egentligen med en ”bitch”?", o:["En kvinna som är elak mot män","En kvinna med självrespekt som inte överger sig själv","En kvinna som spelar svårfångad"], a:1, why:"Självrespekt, inte elakhet eller spel."},
+    {t:"reflect", key:"r_l10", q:"Var har du sagt ja den senaste månaden när du egentligen menade nej?"}
+  ]},
+  { id:"l11", icon:"🔥", title:"Lockelsen i ett helt liv", steps:[
+    {t:"idea", who:"Robert Greene", book:"The Art of Seduction", p:"Greene beskriver hur människor dras till den som verkar hel i sig själv – med egna passioner, ett eget liv och lite mystik. Tydligt behov av den andre gör tvärtom: dragningen dör."},
+    {t:"info", h:"Trygghetsfiltret", p:"Greenes bok handlar också om manipulation. Vi tar bara kärnan: ett rikt eget liv är attraktivt för att det är äkta, inte för att det är en strategi."},
+    {t:"pick", q:"Vilket ankare väljer du först den här veckan?", o:[
+      {t:"En plan med en vän, bara för mig", r:"Bra. Boka den idag."},
+      {t:"Något jag älskade innan relationen", r:"Det är en del av dig han blev förälskad i. Ta tillbaka den."},
+      {t:"Något för kroppen – träning, promenad, dans", r:"Kroppen som lugnas lugnar huvudet."}]},
+    {t:"mission", p:"Gör alla tre ankarna innan söndag: en vän, en gammal passion, något för kroppen."}
+  ]},
+  { id:"l12", icon:"🏛️", title:"Självkänslans pelare", steps:[
+    {t:"idea", who:"Nathaniel Branden", book:"The Six Pillars of Self-Esteem", p:"Branden beskriver självkänsla som något man bygger genom handlingar: att leva medvetet, acceptera sig själv, ta ansvar för sig själv, hävda sig själv, leva med mening och ha integritet."},
+    {t:"check", q:"Att säga vad du vill och behöver, lugnt och tydligt – vilken pelare är det?", o:["Självacceptans","Självhävdelse","Integritet","Att leva medvetet"], a:1, why:"Självhävdelse: att respektera dina behov tillräckligt för att uttrycka dem."},
+    {t:"idea", who:"Margarita Nazarenko", book:"The New Rules", p:"Nazarenko återkommer till att ditt liv inte ska kretsa kring honom. Hans uppmärksamhet ska vara en del av ditt liv, inte måttstocken på ditt värde."},
+    {t:"reflect", key:"r_l12", q:"Skriv 10 saker du gillar med dig själv som inte har med att vara flickvän att göra."}
+  ]},
+  { id:"l12b", icon:"🎭", title:"Ut ur offerrollen", steps:[
+    {t:"study", h:"Dramatriangeln", p:"Psykiatern Stephen Karpman beskrev 1968 en triangel med tre roller: offret, förföljaren och räddaren. När du är offret hamnar din partner som räddare. Tröttnar han på att rädda, glider han över till förföljare – och du känner dig ännu mer som ett offer.", src:"Karpman (1968), Transactional Analysis Bulletin"},
+    {t:"idea", who:"David Emerald", book:"The Power of TED*", p:"Emerald föreslår en väg ut: offret blir skapare. I stället för att fråga ”varför händer det här mig?” frågar skaparen ”vad vill jag, och vad kan jag göra?”. Räddaren blir en coach, och förföljaren en utmanare."},
+    {t:"pick", q:"Vilken mening låter som en skapare?", o:[
+      {t:"”Han visar aldrig att han bryr sig om mig.”", r:"Offerspråk: det lägger hela din trygghet i hans händer."},
+      {t:"”Jag vill ha mer värme mellan oss. Jag börjar med att fråga om en dejt på lördag.”", r:"Skaparspråk: du vet vad du vill och tar ett steg mot det."},
+      {t:"”Det är väl jag som är för mycket.”", r:"Offerspråk riktat mot dig själv. Det låter ödmjukt men håller dig liten."}]},
+    {t:"reflect", key:"r_l12b", q:"Skriv en situation du ofta berättar som offer. Skriv sedan om den som skapare: vad vill du, och vad gör du?"}
+  ]},
+  { id:"l12c", icon:"🪞", title:"Jämförelser", steps:[
+    {t:"info", h:"Tre sorters jämförelser", p:"Med hans vänner, hans ex och hans ”typ”. Med dina egna ex och vad de gjorde för dig. Och med tiden han lägger på andra jämfört med tiden med dig."},
+    {t:"info", h:"Insidan mot utsidan", p:"När du jämför dig ställer du din insida, med all oro och tvivel, mot andras utsida, som du bara ser en putsad bild av. Det är en jämförelse du alltid förlorar, för den är inte rättvis."},
+    {t:"pick", q:"Han nämner att hans ex var bra på att laga mat. Vad händer i dig?", o:[
+      {t:"Jag börjar undra om han saknar henne", r:"Det är oron. Han är med dig, varje dag, av ett skäl."},
+      {t:"Jag vill laga en ännu bättre middag", r:"Då blir middagen ett test. Laga om du vill, inte för att vinna."},
+      {t:"Inget särskilt, det är bara ett faktum", r:"Trygg reaktion. Ett ex är en del av hans historia, inte ett hot."}]},
+    {t:"reflect", key:"r_l12c", q:"Vem jämför du dig oftast med? Vad säger oron då, och vad är fakta?"}
+  ]},
+  { id:"l12d", icon:"☕", title:"Samma varma du", steps:[
+    {t:"info", h:"Ditt humör är ditt", p:"Var samma varma du oavsett hans humör. Om han är tyst eller trött behöver du inte bli kall för att skydda dig, eller överdrivet glad för att rädda stämningen. Ditt lugn blir något han kan luta sig mot."},
+    {t:"info", h:"Små vanor med stor effekt", p:"Fixa dig för din egen skull, och säg ingenting om det. Ta emot komplimanger och gester med ett ”tack” och ett leende, utan att förminska dem. Sluta nedvärdera dig själv, även på skämt."},
+    {t:"info", h:"Låt förändringen märkas", p:"Förklara inte att du jobbar på dig själv eller att du ändrar dig. Låt det märkas. Och när du slinter, reparera lätt: ”Oj, det där var min nervositet.” Sedan går ni vidare."},
+    {t:"check", q:"Han säger att du är fin idag. Vilket svar är tryggt?", o:["”Nej, jag ser hemsk ut”","”Tack!” med ett leende","”Varför säger du det, brukar jag inte vara det?”"], a:1, why:"Ta emot det. Han får glädjen att ha gjort dig glad."},
+    {t:"check", q:"Du råkade ställa en fiskefråga. Vad gör du?", o:["Ber om ursäkt länge","Säger lätt ”oj, det där var min nervositet” och går vidare","Låtsas att inget hänt och skäms i tysthet"], a:1, why:"En lätt reparation visar självinsikt utan att göra det till en stor grej."},
+    {t:"reflect", key:"r_l12d", q:"Skriv tre saker du vill fylla ditt liv med den närmaste månaden."}
+  ]},
+  { id:"s3b", icon:"🌟", title:"Story: Ellas egen lördag", steps:[
+    {t:"scene", h:"Ellas egen lördag", lines:[
+      ["n","Max har verkat lite avlägsen. Ella går ändå på pilates och äter middag med tjejerna."],
+      ["n","Hon kommer hem sent, glad och med rosiga kinder."],
+      ["m","Hej! Hur var det?"],
+      ["e","Så kul! Sara har träffat en kille som tar med henne på fågelskådning 😂"],
+      ["m","Haha nej?! Berätta allt."],
+      ["n","Senare, i soffan, känner Ella att hon saknat honom."],
+      ["e","Jag behöver en kram."],
+      ["m","Kom hit."]]},
+    {t:"reflect", key:"r_s3b", q:"Vad i ditt eget liv har du ställt in för honom, och vad skulle du vilja ta tillbaka?"}
+  ]}
+]},
+{ id:"u4", title:"Tala tryggt", week:"Vecka 4", color:"var(--teal)", shadow:"var(--teal-d)",
+  carrot:{ icon:"💞", title:"Frågor som för närmare", text:"Arthur Aron visade 1997 att främlingar som turades om att ställa allt djupare frågor till varandra kände sig betydligt närmare efteråt. Gradvis, ömsesidig öppenhet skapar närhet.", mission:"Välj en kväll och turas om att svara: ”Vad är du mest tacksam för i ditt liv just nu?” · ”Vilket minne betyder mest för dig?” · ”Vad skulle du vilja att jag förstod bättre om dig?”" },
+  lessons:[
+  { id:"s4a", icon:"📖", title:"Story: Samtalet klockan elva", steps:[
+    {t:"scene", h:"Samtalet klockan elva", lines:[
+      ["n","Fredag, klockan elva på kvällen, efter två glas vin. Ella har burit frågan hela veckan."],
+      ["e","Vart är vi ens på väg? Du pratar aldrig om framtiden."],
+      ["m","Måste vi ta det här nu? Klockan är elva."],
+      ["e","Du bryr dig aldrig om hur jag mår!"],
+      ["n","Tårarna kommer. Max blir tyst och tittar ner i golvet."],
+      ["m","Jag vet inte vad jag ska säga."],
+      ["n","Ella somnar ledsen. Max ligger vaken, han också."]]},
+    {t:"pick", q:"Vad gjorde samtalet så svårt för Max?", o:[
+      {t:"Tidpunkten, anklagelsen och tårarna samtidigt", r:"Ja. Han kände sig attackerad och översköljd, så han stängde av."},
+      {t:"Han vill inte ha en framtid med henne", r:"Det vet vi inte. Han fick aldrig en chans att svara lugnt."},
+      {t:"Han är dålig på känslor", r:"Han kanske behöver lugn för att öppna sig. Det kan Ella ge honom."}]},
+    {t:"teaser", h:"Så här fixar vi det", items:["Se och svara på hans små inviter","Bjuda in till kärlek i de goda stunderna","Bråka rätt med en mjuk start","Välja samtalsämnen som ger energi","Närhet och initiativ utan spel","Säga vad du behöver, en gång","Ha samtalet vid rätt tillfälle, och lyssna"]}
+  ]},
+  { id:"l13", icon:"🤝", title:"Bids – små inviter", steps:[
+    {t:"study", h:"86 % mot 33 %", p:"John Gottman följde nygifta par i sex år. De som var kvar tillsammans hade vänt sig mot varandras små inviter till kontakt 86 % av gångerna. De som skilde sig gjorde det bara 33 % av gångerna.", src:"The Gottman Institute"},
+    {t:"info", h:"Vad är ett bid?", p:"En kommentar, en blick, ett meme, ”kolla där”. Du kan vända dig mot (engagera dig), bort (missa) eller emot (avfärda). När du är fokuserad på din rädsla missar du lätt hans små bids – de finns ofta där."},
+    {t:"check", q:"Han säger ”Kolla, en ny restaurang där”. Vilket svar vänder sig MOT honom?", o:["Tystnad, du skrollar vidare","”Varför bjuder du aldrig ut mig?”","”Oj, vad tror du de har? Ska vi testa?”"], a:2, why:"Det engagerar sig i hans bid. Det andra alternativet förvandlar invitet till en anklagelse."},
+    {t:"mission", p:"Lägg märke till tre bids från honom idag och vänd dig mot dem. Skriv ner dem i dagboken."}
+  ]},
+  { id:"l13b", icon:"☀️", title:"Kärlek i de goda stunderna", steps:[
+    {t:"study", h:"Goda nyheter bygger relationer", p:"Shelly Gable och kollegor studerade hur partners reagerar när den andra delar något positivt. Ett engagerat, glatt svar på goda nyheter hängde ihop med bättre relationer – ibland tydligare än hur man stöttar i svåra stunder.", src:"Gable m.fl. (2004), Journal of Personality and Social Psychology"},
+    {t:"study", h:"Fem till ett", p:"Gottman fann att stabila par hade ungefär fem positiva stunder för varje negativ, även när de bråkade. Värmen behöver ett överskott.", src:"The Gottman Institute"},
+    {t:"info", h:"Ge honom glädjen att älska dig", p:"Om ni mest kommer nära i sorg, får han sällan chansen att visa kärlek när det är lätt. Bjud in till det lätta: dela goda nyheter, skratta, lek, föreslå roliga saker. När han visar värme i vardagen – ta emot den och visa att du blev glad. Det han får bekräftelse för gör han mer av."},
+    {t:"check", q:"Han berättar glatt att han fått beröm på jobbet. Vilket svar bygger mest?", o:["”Vad bra.” och sedan byter du ämne","”Vad roligt! Vad sa chefen? Det här måste vi fira”","”Okej, men du har ju jobbat mycket på sistone”"], a:1, why:"Engagerat och glatt. Gable kallar det aktivt-konstruktivt: du delar hans glädje och vill höra mer."},
+    {t:"mission", p:"Dela tre goda saker med honom den här veckan. Och när han visar dig kärlek en vanlig dag, säg: ”Jag blev så glad av det där.”"}
+  ]},
+  { id:"l14", icon:"⚔️", title:"Bråka rätt", steps:[
+    {t:"study", h:"De fyra ryttarna", p:"Gottman pekar ut fyra mönster som förutsäger att relationer går sönder: kritik, förakt, försvar och stenmurande (att stänga av). Motgiftet börjar med en mjuk start: ”jag känner… jag behöver…” istället för ”du alltid…”.", src:"The Gottman Institute"},
+    {t:"idea", who:"Priya Parker", book:"The Art of Fighting (2026)", p:"Parker menar att undvikande inte är harmoni. Konflikt kan ge ”healthy heat” – rätt hanterad bryter den ny mark och för människor närmare varandra."},
+    {t:"check", q:"Vilken är en mjuk start?", o:["”Du bryr dig aldrig om mig längre”","”Jag har känt mig lite långt ifrån dig och skulle vilja ha mer tid ihop”","Säga ingenting och vara kall"], a:1, why:"Jag-form, en känsla och ett konkret behov – utan anklagelse."},
+    {t:"reflect", key:"r_l14", q:"Vilken av de fyra ryttarna glider du in i när du är orolig?"}
+  ]},
+  { id:"l15", icon:"💬", title:"Samtalet", steps:[
+    {t:"info", h:"Välj ögonblicket", p:"En lugn kväll eller en promenad. Inte direkt efter en trigger, inte via sms, och inte när din oro ligger över 5 av 10."},
+    {t:"pick", q:"Välj en öppning som känns som du:", o:[
+      {t:"”Jag har märkt att jag blir orolig när det känns lite avlägset, och ibland har jag överdrivit eller blivit tyst. Det är mitt att jobba med. Hur känns det för dig?”", r:"Ärlig, tar ansvar, öppnar för honom. Starkt."},
+      {t:"”Jag vill att vi ska må bra ihop. Finns det något som gjort det svårare för dig att komma nära?”", r:"Nyfiken och utan press – bra om han lätt blir defensiv."},
+      {t:"”Jag har saknat lättheten vi hade i början. Saknar du den också?”", r:"Sårbart och varmt. Var redo att lyssna på svaret, vad det än blir."}]},
+    {t:"check", q:"Han berättar något som är jobbigt att höra. Vad gör du?", o:["Förklarar direkt varför han har fel","Speglar: ”Så det låter som att…”","Börjar gråta och ber om ursäkt om och om igen"], a:1, why:"Att spegla visar att du lyssnar. Hans svar är information – inte en dom över ditt värde."},
+    {t:"reflect", key:"r_l15", q:"Vad behöver du från honom? Skriv det i 1–2 meningar."}
+  ]},
+  { id:"l15b", icon:"🗣️", title:"Vad ni pratar om", steps:[
+    {t:"info", h:"Prata om", p:"Hans värld, era gemensamma planer, ditt liv, drömmar och roliga saker. Det är samtal som ger energi och får honom att vilja ha mer av dig."},
+    {t:"info", h:"Prata inte om", p:"Jämförelser, ex, och hur länge du har väntat på något. Det är samtal som tar energi och gör att han känner sig granskad."},
+    {t:"info", h:"Svåra saker och andras komplimanger", p:"När något är tungt: dela det kort och gå vidare, inte som offer. Roliga historier om att någon flörtade med dig är okej, men inte sådana som ska göra honom svartsjuk."},
+    {t:"check", q:"Vilket samtalsämne passar bäst en vanlig kväll?", o:["”Mitt ex brukade alltid…”","”Om du kunde bo var som helst i ett år, var skulle det vara?”","”Vi har varit ihop i åtta månader och du har fortfarande inte…”"], a:1, why:"Drömmar och roliga frågor skapar lätthet och närhet."},
+    {t:"reflect", key:"r_l15b", q:"Lista fem roliga samtalsämnen för er två."}
+  ]},
+  { id:"l15c", icon:"🧲", title:"Närhet och initiativ", steps:[
+    {t:"info", h:"Närhet för att du vill", p:"Var nära när du vill, inte för att få något tillbaka. Och ge honom plats att komma till dig. Om du alltid fyller avståndet först, får han aldrig känna att han vill närma sig."},
+    {t:"info", h:"Fördelningen", p:"I början kan han gärna ta fler initiativ till dejter och närhet. Över tid landar ni på ungefär hälften var. Praktiska saker som resor och logistik räknas inte som att jaga, där tar du initiativ fritt."},
+    {t:"info", h:"När han bjuder in", p:"Svara lugnt och varmt. Spela inte svår och vänta inte med att svara för att verka upptagen. Ett glatt ”ja, gärna!” är både tryggt och attraktivt."},
+    {t:"check", q:"Han skriver ”Middag på fredag?”. Vilket svar är tryggt?", o:["Vänta tre timmar så du inte verkar ivrig","”Ja, gärna! Vart vill du gå?”","”Äntligen, jag trodde aldrig du skulle fråga”"], a:1, why:"Varmt och enkelt. Inga spel, ingen pik."},
+    {t:"check", q:"Vem bokar hotellet till er resa?", o:["Bara han, annars jagar du","Den som har lust och tid, det är logistik","Ingen, ni väntar och ser"], a:1, why:"Praktiska saker är inte att jaga."}
+  ]},
+  { id:"l15d", icon:"📏", title:"Standarder, inte tester", steps:[
+    {t:"info", h:"Säg det en gång", p:"Säg ditt behov en gång, utifrån dig själv: ”Jag blir lite ledsen när vi inte hörs på hela dagen” i stället för ”Du hör aldrig av dig”. Upprepar du det, blir det tjat."},
+    {t:"idea", who:"Gary Chapman", book:"The 5 Love Languages", p:"Chapman delar in kärlek i fem uttryck: ord, tid, gåvor, tjänster och beröring. Forskningen ger inte fullt stöd för just fem fasta språk, men frågan är användbar: hur visar han kärlek, och hur vill du ta emot den?"},
+    {t:"info", h:"Standarder kontra tester", p:"En standard är när du säger vad du vill ha. Ett test är när du väntar och ser om han gissar rätt. Standarder ger honom en chans att lyckas, tester sätter upp honom för att misslyckas."},
+    {t:"info", h:"Varför toxiska knep inte fungerar", p:"Svartsjuka, varm-kall och tyst behandling kan ge en reaktion. Men en reaktion är inte trygghet. De lär honom att relationen är oförutsägbar, och då drar han sig undan."},
+    {t:"check", q:"Vilket är en standard?", o:["Vänta och se om han kommer ihåg årsdagen","”Årsdagen är viktig för mig. Kan vi göra något mysigt?”","Bli kall om han glömmer"], a:1, why:"Du säger vad du vill, en gång, tydligt och varmt."},
+    {t:"reflect", key:"r_l15d", q:"Skriv ett av dina behov som en jag-mening: ”Jag blir … när … och jag skulle vilja …”."}
+  ]},
+  { id:"l16", icon:"🧭", title:"Ärlighet & framtid", steps:[
+    {t:"info", h:"Framtidsfrågan – en gång", p:"Vid 6–12 månader är det rimligt att fråga vart ni är på väg. Fråga en gång, lugnt: ”Vart ser du att vi är på väg?” Låt svaret stå, även om det är ”jag vet inte än”."},
+    {t:"info", h:"Kollandet", p:"Bestäm om du vill berätta för honom att du har kollat hans mobil och plats. Att äga det kan bygga förtroende, men det kräver omsorg – prata gärna med en terapeut eller en nära vän först. Oavsett: kollandet förblir stoppat."},
+    {t:"reflect", key:"r_l16", q:"Vad skulle en trygg version av dig göra med det du har lärt dig den här månaden?"},
+    {t:"mission", p:"Jämför din oro vecka 1 med vecka 4 i dagboken. Vilket verktyg hjälpte mest? Det tar du med dig in i december."}
+  ]},
+  { id:"s4b", icon:"🌟", title:"Story: Promenaden", steps:[
+    {t:"scene", h:"Promenaden", lines:[
+      ["n","Söndag förmiddag, en promenad runt sjön. Ella känner sig lugn, runt 3 av 10."],
+      ["e","Jag har märkt att jag blir orolig när det känns lite avlägset mellan oss, och då har jag ibland överdrivit. Det är mitt att jobba med. Hur känns det för dig?"],
+      ["m","…Ärligt? Ibland har jag känt mig lite pressad. Som att jag aldrig gör tillräckligt."],
+      ["e","Så det har känts som att du inte räcker till. Det förstår jag."],
+      ["m","Ja. Men jag vill vara med dig. Jag vill bara att det ska kännas lätt."],
+      ["e","Det vill jag också."],
+      ["n","De går tyst en stund. Sedan tar Max hennes hand."]]},
+    {t:"reflect", key:"r_s4b", q:"Vad skulle trygga du vilja säga till din partner, och när vore ett bra tillfälle?"}
+  ]}
+]}
+,{ id:"u5", title:"Två martinis", week:"Vecka 5", color:"var(--plum)", shadow:"var(--plum-d)",
+  carrot:{ icon:"🛋️", title:"Ert lugna rum", text:"Gottman rekommenderar ett ”stressreducerande samtal”: en stund om dagen där ni pratar om stress utanför relationen – jobb, vänner, familj – och den andra bara lyssnar, är på din sida och inte ger råd förrän det efterfrågas.", mission:"Erbjud honom tjugo minuter ikväll: ”Berätta om din dag, jag vill bara lyssna.” Var hans lugna rum. Inga råd, ingen agenda." },
+  lessons:[
+  { id:"s5a", icon:"📖", title:"Story: Soffan", steps:[
+    {t:"scene", h:"Soffan", lines:[
+      ["n","Söndagskväll. Ella och Max i soffan. Det blir tyst en stund."],
+      ["th","Han har tråkigt. Säg något roligt."],
+      ["e","Har du tråkigt?"],
+      ["m","Nej, jag vilar bara."],
+      ["n","Ella pratar på, skrattar lite för högt och kollar hans ansikte efter tecken."],
+      ["n","Max sitter lite spänt. Det är svårt att slappna av när någon hela tiden läser av en."]]},
+    {t:"pick", q:"Varför kunde inte Max slappna av?", o:[
+      {t:"Ellas spänning smittade av sig", r:"Ja. Känslor sprider sig mellan människor, och oro gör det också."},
+      {t:"Han var uttråkad", r:"Han sa själv att han vilade. Ella trodde mer på sin rädsla än på honom."},
+      {t:"Soffan var obekväm", r:"Haha. Nej, det var stämningen."}]},
+    {t:"teaser", h:"Så här fixar vi det", items:["Förstå hur lugn smittar","Sluta försvara dig","Sakta ner kroppen","Vara nyfiken i stället för att prestera","Trivas i tystnaden"]}
+  ]},
+  { id:"l17", icon:"🍸", title:"Lugn smittar", steps:[
+    {t:"info", h:"Målet", p:"Att vara så avslappnad och trygg att människor bredvid dig slappnar av, som om de druckit två martinis. Det går inte att spela. Det kommer av att du själv är lugn på insidan, och det sprider sig."},
+    {t:"study", h:"Känslor sprider sig", p:"Psykologerna Elaine Hatfield, John Cacioppo och Richard Rapson beskriver ”emotional contagion”: vi härmar automatiskt varandras ansiktsuttryck, röstläge och kroppsspråk, och därmed smittas vi av varandras känslor. Din oro smittar. Ditt lugn också.", src:"Hatfield, Cacioppo & Rapson, Emotional Contagion (1994)"},
+    {t:"study", h:"En hand lugnar en hjärna", p:"James Coan och kollegor lät kvinnor vänta på en lätt elstöt i en hjärnskanner. När de höll sin partners hand dämpades hjärnans hotreaktion tydligt, och mest i de lyckligaste relationerna. Människor reglerar varandras nervsystem.", src:"Coan, Schaefer & Davidson (2006), Psychological Science"},
+    {t:"check", q:"Varför går det inte att fejka två-martini-närvaro?", o:["För att folk läser av din kropp och röst automatiskt","För att det är omoraliskt","För att det bara fungerar på vänner"], a:0, why:"Smittan sker via små signaler i ansikte, röst och kropp som du inte kan styra fullt ut. Lugnet måste finnas på riktigt."},
+    {t:"mission", p:"Nästa gång du sitter bredvid honom: sänk axlarna, andas ut långsamt två gånger och låt ansiktet bli mjukt. Märk hur han reagerar, utan att leta efter ett resultat."}
+  ]},
+  { id:"l18", icon:"🪶", title:"Ingenting att bevisa", steps:[
+    {t:"info", h:"Försvar är spänning", p:"Den som behöver försvara sig känner sig hotad, och det känns i rummet. Den som inte har något att bevisa kan lyssna på kritik, skämt och olika åsikter utan att stelna. Det är där avslappningen bor."},
+    {t:"study", h:"Motgiftet mot försvar", p:"Gottman räknar försvar som en av de fyra ryttarna. Motgiftet är att ta ansvar för din del, även en liten del: ”Du har rätt, jag var kort i telefonen.” Det tar udden av konflikten direkt.", src:"The Gottman Institute"},
+    {t:"pick", q:"Han säger: ”Du verkar lite stressad idag.” Vad är ditt första svar?", o:[
+      {t:"”Nej, det är jag inte!”", r:"Det är försvar. Han erbjöd egentligen omtanke."},
+      {t:"”Vad menar du? Har jag gjort något fel?”", r:"Oron tar över och gör en observation till ett hot."},
+      {t:"”Ja, kanske lite. Tack för att du märker det.”", r:"Avslappnat och öppet. Ingenting att försvara, bara sant."}]},
+    {t:"reflect", key:"r_l18", q:"Vilken typ av kommentar får dig att stelna? Vad är du rädd att den säger om dig?"}
+  ]},
+  { id:"l19", icon:"🌙", title:"Långsamt är magnetiskt", steps:[
+    {t:"idea", who:"Olivia Fox Cabane", book:"The Charisma Myth", p:"Cabane beskriver karisma som en kombination av närvaro, styrka och värme, där närvaron är grunden. Att vara helt här, inte i huvudet och inte i nästa replik, är något andra känner direkt."},
+    {t:"info", h:"Kroppens tempo", p:"Ett oroligt nervsystem gör allt snabbare: snabbt tal, snabba svar, snabba blickar på mobilen. Lugn låter långsammare. Tala lite långsammare än du brukar, låt pauser finnas, och andas ut innan du svarar."},
+    {t:"breathe"},
+    {t:"check", q:"Vilket är ett tecken på närvaro?", o:["Att ha ett svar redo innan han pratat klart","Att låta en paus finnas innan du svarar","Att fylla varje tystnad"], a:1, why:"Pausen visar att du lyssnade färdigt. Det känns lugnt och respektfullt."},
+    {t:"mission", p:"Ha en långsam dag: tala 20 % långsammare, gå lite långsammare, och lägg mobilen med skärmen nedåt när ni är tillsammans."}
+  ]},
+  { id:"l20", icon:"🔦", title:"Nyfikenhet slår prestation", steps:[
+    {t:"study", h:"Följdfrågor gör dig omtyckt", p:"Forskare vid Harvard (Karen Huang med kollegor) analyserade tusentals samtal. Personer som ställde fler frågor, särskilt följdfrågor, blev mer omtyckta av den de pratade med.", src:"Huang m.fl. (2017), Journal of Personality and Social Psychology"},
+    {t:"study", h:"Att känna sig förstådd", p:"Psykologen Harry Reis kallar det ”perceived partner responsiveness”: känslan att den andra förstår, bekräftar och bryr sig om en. Det är en av de starkaste kärnorna i nära relationer.", src:"Reis m.fl., forskning om responsiveness"},
+    {t:"info", h:"Från scen till salong", p:"Oro gör att du uppträder: du vill vara rolig, smart, älskvärd. Nyfikenhet flyttar fokus från dig till honom. Då slutar du prestera, och han får vara i centrum. Det är avslappnande för båda."},
+    {t:"check", q:"Han säger att jobbet var intensivt. Vilket svar är nyfiket?", o:["”Samma här, min dag var också galen…”","”Vad var det mest intensiva?”","”Du borde säga upp dig.”"], a:1, why:"En följdfråga visar intresse för hans upplevelse, inte för din egen historia eller dina råd."},
+    {t:"mission", p:"Ställ minst tre följdfrågor i nästa samtal med honom, och en med en vän. Märk hur samtalet förändras."}
+  ]},
+  { id:"l21", icon:"🕯️", title:"Bekväm i tystnaden", steps:[
+    {t:"info", h:"Tystnad är inte distans", p:"För en orolig hjärna låter tystnad som fara: ”han har tråkigt, han drar sig undan”. För en trygg person är tystnad vila. Att kunna sitta tyst bredvid någon utan att fylla ut är ett av de tydligaste tecknen på trygghet."},
+    {t:"pick", q:"Ni sitter tysta i soffan i några minuter. Vad händer i dig?", o:[
+      {t:"Jag letar efter något att säga", r:"Det är impulsen att fylla. Prova att låta den passera, och andas ut."},
+      {t:"Jag undrar om han har tråkigt", r:"Märk berättelsen. Kanske vilar han bara, för att det är tryggt med dig."},
+      {t:"Jag njuter av det", r:"Två-martini-energi. Det här är målet."}]},
+    {t:"reflect", key:"r_l21", q:"Med vem känner du dig redan helt avslappnad? Vad gör den personen som får dig att slappna av?"},
+    {t:"mission", p:"Låt tre tystnader med honom bara vara den här veckan. Ingen fråga, ingen mobil. Bara närvaro."}
+  ]},
+  { id:"s5b", icon:"🌟", title:"Story: Två martinis", steps:[
+    {t:"scene", h:"Två martinis", lines:[
+      ["n","Söndagskväll i soffan igen. Det blir tyst."],
+      ["th","Det här är skönt."],
+      ["n","Ella sjunker ner i soffan med benen över hans knä. Hon andas ut."],
+      ["e","Vad var det bästa med din helg?"],
+      ["m","Den här stunden faktiskt."],
+      ["n","Hon frågar vidare, lyssnar, låter pauserna vara. Efter en stund lutar Max huvudet mot hennes axel."],
+      ["m","Det är så lugnt att vara med dig."]]},
+    {t:"reflect", key:"r_s5b", q:"Hur skulle det kännas i din kropp att vara den här Ella? Beskriv det."}
+  ]}
+]}
+,{ id:"u6", title:"Bossnivåer", week:"Mästarprov", color:"#3d2a4a", shadow:"#24162e",
+  carrot:{ icon:"🏆", title:"Ert eget firande", text:"Du har gått från att jaga trygghet till att bära den själv. Fira det, och låt firandet handla om glädje, inte om att bevisa något.", mission:"Planera en kväll som bara handlar om att ha roligt ihop. Ingen stor fråga, inget samtal om relationen. Bara ni två och något ni båda älskar." },
+  lessons:[
+  { id:"b1", icon:"👥", title:"Boss: Han umgås med andra", steps:[
+    {t:"info", h:"Det säger inget om dig", p:"När han väljer en kväll med kompisarna, familjen eller kollegorna väljer han inte bort dig. Han har ett liv, precis som du ska ha. Trygga par har det."},
+    {t:"check", q:"Max ska på svensexa hela helgen och svarar sporadiskt. Vad gör trygga Ella?", o:["Skriver ”Ha det kul!” och planerar en egen helg","Kollar hans story var tionde minut","Skriver ”Kul att du har tid för alla utom mig”"], a:0, why:"Hon önskar honom kul och fyller sin egen helg."},
+    {t:"check", q:"Han berättar att en kollega är rolig att jobba med. Vad gör du?", o:["Frågar ut honom om kollegan","Säger ”Vad kul, vad gör ni för projekt?”","Blir tyst och kylig resten av kvällen"], a:1, why:"Nyfikenhet på hans värld, utan misstanke."}
+  ]},
+  { id:"b2", icon:"🍷", title:"Boss: Utekvällen", steps:[
+    {t:"info", h:"Planera för energi", p:"Utekvällar och dejter med alkohol och sena timmar sänker tröskeln för oro. Bestäm i förväg hur du vill vara, hur du tar dig hem och vad din reservplan är om oron slår till: gå ut och andas, skriv till en vän, eller gå hem i god tid."},
+    {t:"check", q:"Ni är på fest och han pratar länge med andra. Oron stiger. Vad gör du?", o:["Går fram och står tyst bredvid honom","Pratar med någon annan, tar en paus och andas","Går hem utan att säga något"], a:1, why:"Du tar hand om dig själv och litar på att han kommer tillbaka till dig."},
+    {t:"check", q:"Det är sent och du har druckit. Du vill prata om relationen. Vad gör du?", o:["Tar det nu medan modet finns","Skriver ner det och tar det en lugn dag","Skickar ett långt sms"], a:1, why:"Viktiga samtal hör hemma i lugna, nyktra stunder."}
+  ]},
+  { id:"b3", icon:"🎂", title:"Boss: Högtider och årsdagar", steps:[
+    {t:"info", h:"Påminn en gång", p:"Högtider och årsdagar väcker förväntningar. Säg en gång vad som är viktigt för dig, i god tid. Ta sedan emot det han gör, även om det inte blev exakt som du föreställde dig."},
+    {t:"check", q:"Årsdagen närmar sig och han har inte sagt något. Vad gör du?", o:["Väntar och ser om han kommer ihåg, som ett test","Säger en vecka innan: ”Ska vi göra något mysigt på vår årsdag?”","Påminner honom varje dag"], a:1, why:"En lätt påminnelse ger honom chansen att lyckas."},
+    {t:"check", q:"Han ger dig en blomma i stället för den middag du drömt om. Vad gör du?", o:["Visar att du är besviken","Säger ”Tack, vad fin!” och menar det","Jämför med vad din kompis fick"], a:1, why:"Du tar emot det han ger. Det han får glädje av att ge gör han mer av."}
+  ]},
+  { id:"b4", icon:"💌", title:"Boss: Jag älskar dig", steps:[
+    {t:"info", h:"När du vill höra orden", p:"Vänta på en lugn stund, inte en kris eller efter vin. Fråga öppet, till exempel ”Hur känner du för oss?”, i stället för att fiska efter tre särskilda ord. Och bestäm i förväg att du ska ta emot alla svar lugnt."},
+    {t:"check", q:"Han svarar: ”Jag tycker väldigt mycket om dig, men jag är inte där än med de orden.” Vad gör trygga Ella?", o:["Börjar gråta och frågar varför","Säger ”Tack för att du är ärlig” och låter det landa","Säger ”Då är det väl lika bra att vi gör slut”"], a:1, why:"Hon tar emot ärligheten. Hans ord är information, inte en dom över hennes värde."},
+    {t:"reflect", key:"r_b4", q:"Hur vill du känna dig när du ställer den frågan? Vad behöver du göra innan för att känna så?"}
+  ]},
+  { id:"b5", icon:"🌧️", title:"Boss: Den svåra dagen", steps:[
+    {t:"info", h:"När oron är stark", p:"Vissa dagar är oron stark utan att något har hänt. Då är målet inte att må bra, utan att inte göra något du ångrar. Kör SOS-stegen, läs bevislistan, rör på dig, prata med en vän och lägg mobilen i ett annat rum en stund."},
+    {t:"check", q:"Du vaknar med en stark känsla av att något är fel. Vad är bästa första steget?", o:["Fråga honom direkt om ni är okej","Andas och skriv ner tanken: fakta eller oro?","Kolla hans telefon"], a:1, why:"Lugna kroppen och sortera tankarna först. Oftast har ingenting hänt."},
+    {t:"mission", p:"Skriv en lapp till din framtida jag att läsa på en svår dag. Vad behöver hon höra?"}
+  ]},
+  { id:"l22", icon:"👑", title:"Mästarnivå", steps:[
+    {t:"info", h:"Måttstocken", p:"Fråga dig inte om han har förändrats. Fråga: känner jag mig lugnare och mer som mig själv? Det är din måttstock."},
+    {t:"info", h:"Trygghet tar tid", p:"Trygghet byggs över tid och går inte att skynda på. Du kommer att slinta. Det gör alla. Det som räknas är att du kommer tillbaka snabbare och snabbare."},
+    {t:"info", h:"Jobba vidare", p:"Att jobba vidare med anknytning tillsammans med en terapeut kan fördjupa allt du lärt dig här. På 1177.se finns hjälp att hitta rätt."},
+    {t:"reflect", key:"r_l22", q:"Jämför dig själv nu med den du var när kursen började. Vad har förändrats?"}
+  ]}
+]}
+];
+
+const ATT_Q = [
+ {t:"Jag oroar mig ofta för att min partner ska tappa intresset.", d:"a"},
+ {t:"När han svarar sent börjar jag fundera på vad jag gjort fel.", d:"a"},
+ {t:"Jag behöver ofta höra att vi är okej.", d:"a"},
+ {t:"Det känns som att jag är mer inne i relationen än han.", d:"a"},
+ {t:"Mitt humör styrs mycket av hur nära han känns.", d:"a"},
+ {t:"Jag gör mycket för att bevisa att jag är värd att stanna för.", d:"a"},
+ {t:"Det är obekvämt när någon kommer mig riktigt nära.", d:"v"},
+ {t:"Jag löser hellre saker själv än ber om hjälp.", d:"v"},
+ {t:"Jag drar mig undan när relationen blir intensiv.", d:"v"},
+ {t:"Det är svårt för mig att visa sårbarhet.", d:"v"},
+ {t:"Jag känner mig instängd när någon behöver mig mycket.", d:"v"},
+ {t:"Jag håller delar av mig själv för mig själv.", d:"v"}
+];
+const ATT_RES = {
+ secure:{n:"Trygg", e:"🌿", p:"Du verkar ganska bekväm med både närhet och självständighet. Fortsätt öva det som fungerar."},
+ anxious:{n:"Orolig (upptagen)", e:"🌊", p:"Du längtar efter närhet och ditt larmsystem är känsligt för distans. Det är precis vad den här kursen är byggd för."},
+ avoidant:{n:"Undvikande", e:"🏔️", p:"Du skyddar din självständighet och närhet kan kännas trång. Att tillåta lite mer sårbarhet är din växtkant."},
+ fearful:{n:"Rädd-undvikande", e:"🌗", p:"Du både längtar efter och är rädd för närhet. Var extra snäll mot dig själv – och överväg stöd från en terapeut."}
+};
+
+const ROLE_Q = [
+ {q:"Han verkar distanserad en kväll. Du…", o:[["lagar hans favoritmat och skickar ett gulligt sms","m"],["frågar om han ätit, sovit, mår bra","o"],["föreslår och bokar en plan för helgen","g"],["kollar när han senast var aktiv","d"]]},
+ {q:"Han är stressad över jobbet. Du…", o:[["tar på dig mer av vardagen utan att säga något","m"],["ger råd och påminner honom om att ta hand om sig","o"],["gör en lista på hur han kan lösa det","g"],["läser av varje ord för att se om det egentligen handlar om dig","d"]]},
+ {q:"När du känner dig osedd…", o:[["ger du ännu mer och blir tyst bitter","m"],["tar du hand om honom ännu mer","o"],["tar du kontroll över planerna","g"],["letar du efter bevis","d"]]},
+ {q:"Efter ett bråk…", o:[["ber du om ursäkt först, även när du inte tycker du gjort fel","m"],["ser du till att han mår bra","o"],["vill du reda ut allt direkt, nu","g"],["analyserar du hans meddelanden efteråt","d"]]},
+ {q:"En bra flickvän är för dig någon som…", o:[["alltid ställer upp","m"],["tar hand om","o"],["har koll","g"],["vet vad som pågår","d"]]}
+];
+const ROLE_RES = {
+ m:{n:"Martyren", e:"🕯️", p:"Du ger tills det tar slut – och hoppas att det ska märkas. Vägen ut: ge bara det du ger fritt, och be om det du behöver rakt ut."},
+ o:{n:"Mamman", e:"🧸", p:"Du tar hand om honom för att känna dig nödvändig. Vägen ut: låt honom vara vuxen. Omtanke ja, fixande nej."},
+ g:{n:"Managern", e:"📋", p:"Du håller oron i schack genom att ha koll. Vägen ut: lämna utrymme – låt honom ta initiativ, även om det tar längre tid."},
+ d:{n:"Detektiven", e:"🔎", p:"Du letar trygghet i tecken och bevis. Vägen ut: impulsprotokollet, och att bygga lugnet i kroppen istället för i hans mobil."}
+};
+
+const SOURCES = [
+ ["Gottman Institute – Turn towards instead of away","https://www.gottman.com/blog/turn-toward-instead-of-away/"],
+ ["Balban m.fl. (2023) – Brief structured respiration practices, Cell Reports Medicine","https://doi.org/10.1016/j.xcrm.2022.100895"],
+ ["Priya Parker – The Art of Fighting (Penguin, 2026)","https://www.penguin.com.au/books/the-art-of-fighting-9780241830956"],
+ ["Margarita Nazarenko – BEING HER (podcast)","https://www.tapesearch.com/podcast/being-her-with-margarita-nazarenko/1679077626"],
+ ["Margarita Nazarenko – The New Rules","https://www.waterstones.com/book/9781398721593"],
+ ["Levine & Heller – Attached (2010)",""],
+ ["Sherry Argov – Why Men Love Bitches (2002)",""],
+ ["Robert Greene – The Art of Seduction (2001)",""],
+ ["Nathaniel Branden – The Six Pillars of Self-Esteem (1994)",""],
+ ["Olivia Fox Cabane – The Charisma Myth (2012)",""],
+ ["Hatfield, Cacioppo & Rapson (1994); Coan m.fl. (2006); Huang m.fl. (2017); Reis",""],
+ ["Vingerhoets – Why Only Humans Weep (2013); Karpman (1968); Emerald – The Power of TED* (2009); Gable m.fl. (2004)",""],
+ ["Gary Chapman – The 5 Love Languages (1992)",""],
+ ["Hazan & Shaver (1987); Lieberman m.fl. (2007); Borkovec m.fl. (1983); Aron m.fl. (1997, 2000); Algoe (2012); Neff",""]
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const KEY="trygg_v1";
+const S = Object.assign({xp:0, done:{}, carrots:{}, refl:{}, checkins:{}, days:[], att:null, role:null, proof:[], peace:null}, load());
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY))||{} }catch(e){ return {} } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)) }catch(e){} renderStats() }
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0") }
+function markDay(){ const t=today(); if(!S.days.includes(t)) S.days.push(t) }
+function streak(){
+  let n=0; const d=new Date();
+  if(!S.days.includes(fmt(d))) d.setDate(d.getDate()-1);
+  while(S.days.includes(fmt(d))){ n++; d.setDate(d.getDate()-1) }
+  return n;
+}
+function cleanStreak(){
+  let n=0; const d=new Date(); const ok=k=>S.checkins[k]&&S.checkins[k].clean===true;
+  if(!ok(fmt(d))) d.setDate(d.getDate()-1);
+  while(ok(fmt(d))){ n++; d.setDate(d.getDate()-1) }
+  return n;
+}
+function catchImpulse(){ const t=today(); S.checkins[t]=Object.assign({},S.checkins[t]); S.checkins[t].uf=(S.checkins[t].uf||0)+1; S.xp+=3; markDay(); save(); toast("🎣","Snyggt fångat! Du kände impulsen och lät bli. +3 XP"); render() }
+function pd(k){ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d) }
+function daysSince(k){ return Math.round((pd(today())-pd(k))/86400000) }
+function monthsSince(k){ const a=pd(k), b=pd(today()); let m=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth(); if(b.getDate()<a.getDate()) m--; return Math.max(0,m) }
+const PEACE_MS=[[7,"En hel vecka",20],[14,"Två veckor",30],[30,"En månad",50],[60,"Två månader",75],[90,"Tre månader",100],[180,"Ett halvår",150],[365,"Ett helt år",300]];
+function peaceCheck(){
+  const P=S.peace; if(!P) return; const n=daysSince(P.start); P.ms=P.ms||{};
+  if(n>(P.best||0)) P.best=n;
+  let got=0, top="";
+  for(const [d,name,xp] of PEACE_MS){ const key=P.start+":"+d; if(n>=d&&!P.ms[key]){ P.ms[key]=1; got+=xp; top=name } }
+  if(got){ S.xp+=got; save(); setTimeout(()=>{ toast("🕊️",top+" utan bråk! +"+got+" XP"); confetti() },300) }
+}
+function peaceCard(){
+  const P=S.peace;
+  if(!P) return `<div class="peace"><div class="ph">🕊️ Bråkfri streak</div><p class="pp">Räkna dagar, veckor och månader utan bråk. Vilket datum var ert senaste bråk? Välj idag om du vill börja räkna nu.</p><div class="row"><input type="date" id="pStart" value="${today()}" max="${today()}"><button class="btn lav" id="pGo" style="width:auto">Starta</button></div></div>`;
+  const n=daysSince(P.start), w=Math.floor(n/7), r=n%7, mo=monthsSince(P.start);
+  const next=PEACE_MS.find(m=>m[0]>n);
+  return `<div class="peace"><div class="ph">🕊️ Bråkfri streak</div>
+    <div class="pnums"><div><b>${n}</b><small>${n===1?"dag":"dagar"}</small></div><div><b>${w}</b><small>${w===1?"vecka":"veckor"}${r?" + "+r+" d":""}</small></div><div><b>${mo}</b><small>${mo===1?"månad":"månader"}</small></div></div>
+    ${next?`<div class="meter" style="background:rgba(255,255,255,.25)"><i style="width:${Math.min(100,n/next[0]*100)}%;background:#fff"></i></div><p class="pp">${next[0]-n} dagar kvar till ”${next[1]}” · Rekord: ${P.best||n} dagar</p>`:`<p class="pp">Rekord: ${P.best||n} dagar</p>`}
+    <button class="pfight" id="pFight">Vi bråkade</button></div>`;
+}
+function peaceBind(){
+  const g=$("#pGo"); if(g) g.onclick=()=>{ const v=$("#pStart").value||today(); S.peace={start:v>today()?today():v,best:0,fights:[],ms:{}}; markDay(); save(); render() };
+  const f=$("#pFight"); if(f) f.onclick=()=>{
+    if(!f.dataset.armed){ f.dataset.armed=1; f.textContent="Säker? Tryck igen för att nollställa"; return }
+    const P=S.peace; P.best=Math.max(P.best||0,daysSince(P.start)); P.fights=(P.fights||[]).concat(today()); P.start=today(); save();
+    toast("🤍","Räknaren börjar om. Ett bråk är inget misslyckande – det som räknas är hur ni reparerar. Gå till lektionen ”Bråka rätt” om du vill ha stöd.");
+    render() };
+}
+function fmt(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0") }
+const ALL = UNITS.flatMap(u=>u.lessons.map(l=>({...l, unit:u})));
+function isUnlocked(id){ const i=ALL.findIndex(l=>l.id===id); return ALL.slice(0,i).every(l=>S.done[l.id]) }
+function unitDone(u){ return u.lessons.every(l=>S.done[l.id]) }
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $ = s => document.querySelector(s);
+
+function renderStats(){
+  $("#sStreak").textContent=streak();
+  $("#sXp").textContent=S.xp;
+  $("#sCar").textContent=Object.keys(S.carrots).length;
+}
+
+/* =========================================================
+   VIEWS
+   ========================================================= */
+let tab="path";
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b)); render(); scrollTo(0,0) });
+
+function render(){ peaceCheck(); ({path:viewPath, quiz:viewQuiz, proof:viewProof, carrots:viewCarrots, journal:viewJournal})[tab](); renderStats() }
+
+function viewPath(){
+  const doneN = ALL.filter(l=>S.done[l.id]).length;
+  const level = Math.floor(S.xp/100)+1, into=S.xp%100;
+  let h=`<section class="hero">
+    <h1>Från orolig<br>till trygg</h1>
+    <p>Fem veckor med Ella och Max, 25 lektioner och 10 stories. Målet: så trygg och avslappnad att den som sitter bredvid dig känner sig som efter två martinis.</p>
+    <div class="chip">💞 ${esc(STAGE.name)}</div>
+    <div class="lvl"><i style="width:${into}%"></i></div>
+    <div class="lvlt">Nivå ${level} · ${into}/100 XP · ${doneN}/${ALL.length} lektioner klara</div>
+  </section>
+  <div class="quick"><div class="qs"><b>🛡️ ${cleanStreak()}</b><small>dagar utan fiskefrågor, tester och jämförelser</small></div><button class="btn lav" id="catch">🎣 Fångade en impuls +3</button></div>${peaceCard()}`;
+  const offs=[0,48,70,48,0,-48,-70,-48];
+  let k=0, firstOpen=ALL.find(l=>!S.done[l.id]);
+  UNITS.forEach(u=>{
+    h+=`<div class="unit" style="background:${u.color}"><div><small>${u.week}</small><h2>${esc(u.title)}</h2></div><div class="ub">${u.lessons.filter(l=>S.done[l.id]).length}/${u.lessons.length}</div></div><div class="path">`;
+    u.lessons.forEach(l=>{
+      const done=S.done[l.id], open=isUnlocked(l.id), cur=firstOpen&&firstOpen.id===l.id;
+      const style = open ? `background:${u.color};box-shadow:0 7px 0 ${u.shadow};color:${u.color}` : "";
+      h+=`<div class="nwrap" style="transform:translateX(${offs[k++%8]}px)">
+        <button class="node ${open?"":"locked"} ${cur?"cur":""}" style="${style}" data-l="${l.id}" aria-label="${esc(l.title)}">
+          ${cur?'<span class="tip">Starta</span>':""}<span>${l.icon}</span>${done?'<span class="ck">✓</span>':""}
+        </button><div class="nlabel">${esc(l.title)}</div></div>`;
+    });
+    const ud=unitDone(u), got=S.carrots[u.id];
+    h+=`<div class="nwrap" style="transform:translateX(${offs[k++%8]}px)">
+      <button class="node chest ${ud?"":"locked"} ${ud&&!got?"cur":""}" style="${ud?"background:var(--gold);box-shadow:0 7px 0 var(--gold-d);color:var(--gold)":""}" data-c="${u.id}">
+        ${ud&&!got?'<span class="tip">Öppna</span>':""}<span>${got?"🥕":"🎁"}</span></button>
+      <div class="nlabel">Morot: ${got?esc(u.carrot.title):"???"}</div></div></div>`;
+  });
+  h+=`<p class="note">Det här är inte terapi och ersätter inte professionell hjälp. Idéer från böcker är sammanfattade med egna ord.</p>`;
+  $("#view").innerHTML=h;
+  $("#catch").onclick=catchImpulse; peaceBind();
+  document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ const id=b.dataset.l; if(!isUnlocked(id)) return toast("🔒","Klara föregående lektion först."); startLesson(id) });
+  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ const u=UNITS.find(x=>x.id===b.dataset.c); if(!unitDone(u)) return toast("🎁","Klara alla lektioner i "+u.week.toLowerCase()+" för att öppna."); openCarrot(u) });
+}
+
+function viewQuiz(){
+  let h=`<h2 class="sectitle">Lär känna dig</h2><p class="sub">Korta självtester för att förstå dina mönster. De är för reflektion, inte diagnos.</p>`;
+  h+=`<div class="card qcard" id="qAtt"><div class="ic" style="background:#ffe3ea">🧭</div><div><h3>Din anknytningsstil</h3><p style="margin:0">12 påståenden · 2 min</p>${S.att?`<p style="margin:6px 0 0;color:var(--rose)">Senast: ${ATT_RES[S.att.r].e} ${ATT_RES[S.att.r].n}</p>`:""}</div></div>`;
+  h+=`<div class="card qcard" id="qRole"><div class="ic" style="background:#efe6ff">🎭</div><div><h3>Vilken roll tar du när du blir orolig?</h3><p style="margin:0">5 frågor · 1 min</p>${S.role?`<p style="margin:6px 0 0;color:var(--lav-d)">Senast: ${ROLE_RES[S.role].e} ${ROLE_RES[S.role].n}</p>`:""}</div></div>`;
+  $("#view").innerHTML=h;
+  $("#qAtt").onclick=attQuiz; $("#qRole").onclick=roleQuiz;
+}
+
+function viewProof(){
+  let h=`<h2 class="sectitle">Bevislistan</h2><p class="sub">Din samling av bevis på att han vill ha dig. Fokusera på stora handlingar och val, inte små stunder. Läs korten när oron slår till.</p>
+  <div class="card"><textarea id="pIn" style="min-height:90px" placeholder="T.ex. Han presenterade mig för sina föräldrar"></textarea><div style="margin-top:12px"><button class="btn lav" id="pAdd">Lägg till kort +5 XP</button></div></div>`;
+  if(!S.proof.length) h+=`<div class="card" style="text-align:center"><div class="big" style="font-size:44px;margin:0">🃏</div><p>Inga kort än. Börja med tre: när valde han dig, när planerade han framåt, när presenterade han dig?</p></div>`;
+  else h+=`<div class="pgrid">${S.proof.slice().reverse().map((p,i)=>`<div class="pcard"><small>Kort ${S.proof.length-i} · ${esc(p.d)}</small><p>${esc(p.t)}</p><button class="pdel" data-i="${S.proof.length-1-i}" aria-label="Ta bort">✕</button></div>`).join("")}</div>`;
+  $("#view").innerHTML=h;
+  $("#pAdd").onclick=()=>{ const v=$("#pIn").value.trim(); if(!v) return; S.proof.push({t:v,d:today()}); S.xp+=5; markDay(); save(); confetti(); viewProof() };
+  document.querySelectorAll(".pdel").forEach(b=>b.onclick=()=>{ if(b.dataset.armed){ S.proof.splice(+b.dataset.i,1); save(); viewProof() } else { b.dataset.armed=1; b.textContent="Ta bort?"; b.classList.add("armed") } });
+}
+function viewCarrots(){
+  let h=`<h2 class="sectitle">Morötter 🥕</h2><p class="sub">Belöningar för relationen, anpassade för din fas: <b>${esc(STAGE.name)}</b>. ${esc(STAGE.desc)}</p>`;
+  UNITS.forEach(u=>{
+    const got=S.carrots[u.id];
+    h+=`<div class="card carrot ${got?"":"lock"}"><div class="ic">${got?u.carrot.icon:"🔒"}</div><div>
+      <h3>${got?esc(u.carrot.title):"Låst morot"}</h3>
+      <p>${got?esc(u.carrot.text):"Klara "+esc(u.week.toLowerCase())+" ("+esc(u.title)+") för att låsa upp."}</p>
+      ${got?`<p style="color:#c25a14"><b>Uppdrag:</b> ${esc(u.carrot.mission)}</p>`:""}</div></div>`;
+  });
+  $("#view").innerHTML=h;
+}
+
+function viewJournal(){
+  const t=today(), c=Object.assign({a:5,uf:0,ua:0,ad:0},S.checkins[t]||{});
+  let h=`<h2 class="sectitle">Dagbok</h2><p class="sub">Dagens incheckning tar 30 sekunder och håller din streak vid liv.</p>
+  <div class="card"><h3>Hur orolig känner du dig idag?</h3>
+    <div class="num" id="aNum">${c.a}</div>
+    <input type="range" min="1" max="10" value="${c.a}" id="aR">
+    <div class="scale-l"><span>Lugn</span><span>Mycket orolig</span></div>
+    <div class="cnt"><span>Impulser att kolla/söka bekräftelse</span><div class="ctl"><button data-k="uf" data-d="-1">−</button><b id="uf">${c.uf}</b><button data-k="uf" data-d="1">+</button></div></div>
+    <div class="cnt"><span>…som jag agerade på</span><div class="ctl"><button data-k="ua" data-d="-1">−</button><b id="ua">${c.ua}</b><button data-k="ua" data-d="1">+</button></div></div>
+    <div class="cnt"><span>Gånger jag bad om närhet direkt</span><div class="ctl"><button data-k="ad" data-d="-1">−</button><b id="ad">${c.ad}</b><button data-k="ad" data-d="1">+</button></div></div>
+    <p style="margin:14px 0 6px">Idag har jag inte fiskat, testat eller jämfört</p>
+    <div class="scale"><button data-clean="1" class="${c.clean===true?"sel":""}">Stämmer 🛡️</button><button data-clean="0" class="${c.clean===false?"sel":""}">Inte idag</button></div>
+    <div style="margin-top:14px"><button class="btn rose" id="saveC">${c.saved?"Uppdatera":"Checka in +5 XP"}</button></div>
+  </div>`;
+  h+=`<div class="card"><h3>Din oro, senaste 14 dagarna</h3>${chart()}</div>`;
+  const rs=Object.entries(S.refl).filter(([k,v])=>v&&v.trim());
+  h+=`<div class="card"><h3>Dina reflektioner</h3>${rs.length?rs.map(([k,v])=>{const st=ALL.flatMap(l=>l.steps).find(s=>s.key===k);return `<div class="refl"><small>${esc(st?st.q:"")}</small><p>${esc(v)}</p></div>`}).join(""):'<p>Dina svar från lektionerna samlas här.</p>'}</div>`;
+  h+=`<div class="card src"><h3>Källor</h3><ul style="padding-left:18px;margin:6px 0">${SOURCES.map(([n,u])=>`<li>${u?`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n)}</li>`).join("")}</ul></div>
+  <div class="card"><h3>Behöver du mer stöd?</h3><p>Om impulsen att kolla fortsätter att vinna, oron ligger över 7 de flesta dagar, eller det påverkar sömn och jobb – prata med en psykolog. På <a href="https://www.1177.se" target="_blank" rel="noopener" style="color:var(--lav-d)">1177.se</a> finns hjälp att hitta rätt.</p></div>`;
+  $("#view").innerHTML=h;
+  const cur={...c};
+  $("#aR").oninput=e=>{cur.a=+e.target.value;$("#aNum").textContent=cur.a};
+  document.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const k=b.dataset.k;cur[k]=Math.max(0,cur[k]+ +b.dataset.d);$("#"+k).textContent=cur[k]});
+  document.querySelectorAll("[data-clean]").forEach(b=>b.onclick=()=>{ cur.clean=b.dataset.clean==="1"; document.querySelectorAll("[data-clean]").forEach(x=>x.classList.toggle("sel",x===b)) });
+  $("#saveC").onclick=()=>{ const first=!(S.checkins[t]&&S.checkins[t].saved); cur.saved=true; S.checkins[t]=cur; if(first) S.xp+=5; markDay(); save(); toast("✅", first?"Incheckad! +5 XP":"Uppdaterad"); viewJournal() };
+}
+
+function chart(){
+  const pts=[]; const d=new Date(); d.setDate(d.getDate()-13);
+  for(let i=0;i<14;i++){ const k=fmt(d); pts.push([d.getDate(), S.checkins[k]&&S.checkins[k].saved&&S.checkins[k].a!=null?S.checkins[k].a:null]); d.setDate(d.getDate()+1) }
+  if(!pts.some(p=>p[1]!==null)) return `<p>Checka in några dagar så ser du din kurva här.</p>`;
+  const W=320,H=140,px=i=>16+i*(W-32)/13,py=v=>H-22-(v-1)*(H-40)/9;
+  let path="",dots="";
+  pts.forEach((p,i)=>{ if(p[1]===null) return; path+=(path?"L":"M")+px(i)+","+py(p[1]); dots+=`<circle cx="${px(i)}" cy="${py(p[1])}" r="4.5" fill="var(--rose)"/><text x="${px(i)}" y="${py(p[1])-9}" font-size="10" text-anchor="middle" fill="#8a7f86">${p[1]}</text>` });
+  const lbl=pts.map((p,i)=>i%2===0?`<text x="${px(i)}" y="${H-4}" font-size="10" text-anchor="middle" fill="#b5aab1">${p[0]}</text>`:"").join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Oro per dag"><line x1="16" x2="${W-16}" y1="${py(5)}" y2="${py(5)}" stroke="#efe5dc" stroke-dasharray="4"/><path d="${path}" fill="none" stroke="var(--rose)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${dots}${lbl}</svg>`;
+}
+
+/* =========================================================
+   LESSON PLAYER
+   ========================================================= */
+let L=null;
+function startLesson(id){
+  const l=ALL.find(x=>x.id===id);
+  L={l, i:0, correct:0, state:"idle", sel:null};
+  const ov=document.createElement("div"); ov.className="ov"; ov.id="ov";
+  ov.innerHTML=`<div class="bar"><button class="x" id="ovx" aria-label="Stäng">✕</button><div class="prog"><i id="pg"></i></div></div><div class="body" id="ob"></div><div class="foot" id="of"><div class="in" id="ofi"></div></div>`;
+  document.body.appendChild(ov); document.body.style.overflow="hidden";
+  $("#ovx").onclick=closeLesson;
+  step();
+}
+function closeLesson(){ const o=$("#ov"); if(o) o.remove(); document.body.style.overflow=""; clearTimeout(breathT); L=null; render() }
+
+let breathT=null;
+function step(){
+  clearTimeout(breathT);
+  const s=L.l.steps[L.i], b=$("#ob"), f=$("#of"), fi=$("#ofi");
+  $("#pg").style.width=(L.i/L.l.steps.length*100)+"%";
+  f.className="foot"; L.state="idle"; L.sel=null; b.scrollTop=0;
+  let h="", btn="Fortsätt", dis=false;
+  if(s.t==="info"){ h=`<div class="kicker">💡 Lär dig</div><h2 class="q">${esc(s.h)}</h2><div class="txt">${esc(s.p)}</div>` }
+  else if(s.t==="idea"){ h=`<div class="kicker">📖 Idé från boken</div><div class="quote"><div class="txt">${esc(s.p)}</div><div class="who"><b>${esc(s.who)}</b> · ${esc(s.book)}</div></div>` }
+  else if(s.t==="study"){ h=`<div class="kicker">🔬 Forskningen säger</div><div class="study"><span class="tag">Studie</span><h2 class="q" style="margin-top:12px">${esc(s.h)}</h2><div class="txt">${esc(s.p)}</div><div class="src">${esc(s.src)}</div></div>` }
+  else if(s.t==="check"){ h=`<div class="kicker">✏️ Testa dig</div><h2 class="q">${esc(s.q)}</h2>`+s.o.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join(""); btn="Kontrollera"; dis=true }
+  else if(s.t==="pick"){ h=`<div class="kicker">🔍 Om dig</div><h2 class="q">${esc(s.q)}</h2>`+s.o.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o.t)}</button>`).join(""); btn="Välj"; dis=true }
+  else if(s.t==="reflect"){ h=`<div class="kicker">📓 Reflektera</div><h2 class="q">${esc(s.q)}</h2><textarea id="ta" placeholder="Skriv fritt, bara du ser det…">${esc(S.refl[s.key]||"")}</textarea><p class="note" style="margin:10px 0">Sparas i din dagbok på den här enheten.</p>`; btn="Spara" }
+  else if(s.t==="mission"){ h=`<div class="kicker">🎯 Dagens uppdrag</div><div class="mission"><div class="big" style="margin:0 0 10px;font-size:46px">🎯</div><div class="txt">${esc(s.p)}</div></div>`; btn="Jag tar uppdraget" }
+  else if(s.t==="scene"){ let last=""; h=`<div class="kicker">📖 Story</div><h2 class="q">${esc(s.h)}</h2><div class="scene">`+s.lines.map(([k,t])=>{ let w=""; if((k==="e"||k==="m")&&k!==last) w=`<div class="who ${k}">${k==="e"?"Ella":"Max"}</div>`; last=k; return k==="n"?`<div class="sn">${esc(t)}</div>`: k==="th"?`<div class="th">💭 ${esc(t)}</div>` : w+`<div class="bub ${k}">${esc(t)}</div>` }).join("")+`</div>` }
+  else if(s.t==="teaser"){ h=`<div class="kicker">🛠️ Den här veckan</div><h2 class="q">${esc(s.h)}</h2><div class="mission"><ul class="teaser" style="padding-left:20px;margin:0">${s.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>`; btn="Kör igång" }
+  else if(s.t==="breathe"){ h=`<div class="kicker">🌬️ Prova nu</div><h2 class="q">Fysiologisk suck</h2><div class="txt" style="text-align:center">Följ cirkeln: två korta inandningar genom näsan, en lång utandning genom munnen.</div><div class="breath" id="br">Redo</div>`; breathe() }
+  b.innerHTML=h;
+  fi.innerHTML=`<button class="btn" id="go" ${dis?"disabled":""}>${btn}</button>`;
+  b.querySelectorAll(".opt").forEach(o=>o.onclick=()=>{ if(L.state!=="idle") return; b.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel")); o.classList.add("sel"); L.sel=+o.dataset.i; $("#go").disabled=false });
+  $("#go").onclick=next;
+}
+function breathe(){
+  const seq=[["In",.85,700],["In igen",1,600],["Ut…",.55,2600]]; let j=0;
+  const run=()=>{ const el=$("#br"); if(!el) return; const [t,sc]=seq[j%3]; el.textContent=t; el.style.transitionDuration=(seq[j%3][2]/1000)+"s"; el.style.transform=`scale(${sc})`; j++ };
+  const loop=()=>{ if(!$("#br")) return; run(); breathT=setTimeout(loop, seq[(j-1)%3][2]+200) };
+  breathT=setTimeout(loop,400);
+}
+function next(){
+  const s=L.l.steps[L.i], f=$("#of"), fi=$("#ofi");
+  if(s.t==="check" && L.state==="idle"){
+    const ok=L.sel===s.a; L.state="answered"; if(ok) L.correct++;
+    document.querySelectorAll(".opt").forEach((o,i)=>{ if(i===s.a) o.classList.add("right"); else if(i===L.sel) o.classList.add("wrong"); o.classList.remove("sel") });
+    f.className="foot "+(ok?"good":"bad");
+    fi.innerHTML=`<div class="fb ${ok?"good":"bad"}">${ok?"Snyggt! 🎉":"Inte riktigt"}</div><p class="fbp">${esc(s.why)}</p><button class="btn ${ok?"":"rose"}" id="go">Fortsätt</button>`;
+    $("#go").onclick=advance; return;
+  }
+  if(s.t==="pick" && L.state==="idle"){
+    L.state="answered";
+    f.className="foot good";
+    fi.innerHTML=`<p class="fbp" style="font-size:16px">${esc(s.o[L.sel].r)}</p><button class="btn" id="go">Fortsätt</button>`;
+    $("#go").onclick=advance; return;
+  }
+  if(s.t==="reflect"){ const v=$("#ta").value; S.refl[s.key]=v; save() }
+  advance();
+}
+function advance(){ L.i++; if(L.i>=L.l.steps.length) finish(); else step() }
+function finish(){
+  clearTimeout(breathT);
+  const first=!S.done[L.l.id]; const xp=first?(10+L.correct*5):5;
+  S.done[L.l.id]=true; S.xp+=xp; markDay(); save();
+  $("#pg").style.width="100%";
+  $("#ob").innerHTML=`<div class="big">🌟</div><h2 class="q" style="text-align:center">Lektion klar!</h2><p class="txt" style="text-align:center">${esc(L.l.title)}</p>
+   <div class="done-xp"><div class="pill" style="border-color:var(--gold);color:var(--gold-d)"><small>XP</small><b>+${xp}</b></div><div class="pill" style="border-color:var(--peach);color:var(--peach-d)"><small>Streak</small><b>🔥 ${streak()}</b></div></div>`;
+  $("#of").className="foot"; $("#ofi").innerHTML=`<button class="btn" id="go">Fortsätt</button>`;
+  $("#go").onclick=closeLesson; confetti();
+}
+
+/* =========================================================
+   QUIZZES
+   ========================================================= */
+function quizShell(title){
+  L={l:{steps:[]},i:0};
+  const ov=document.createElement("div"); ov.className="ov"; ov.id="ov";
+  ov.innerHTML=`<div class="bar"><button class="x" id="ovx">✕</button><div class="prog"><i id="pg"></i></div></div><div class="body" id="ob"></div><div class="foot" id="of"><div class="in" id="ofi"></div></div>`;
+  document.body.appendChild(ov); document.body.style.overflow="hidden"; $("#ovx").onclick=closeLesson;
+}
+function attQuiz(){
+  quizShell(); const ans=[]; let i=0;
+  const show=()=>{
+    $("#pg").style.width=(i/ATT_Q.length*100)+"%";
+    if(i>=ATT_Q.length) return attResult(ans);
+    $("#ob").innerHTML=`<div class="kicker">Påstående ${i+1} av ${ATT_Q.length}</div><h2 class="q">${esc(ATT_Q[i].t)}</h2><div class="scale">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${ans[i]===n?"sel":""}">${n}</button>`).join("")}</div><div class="scale-l"><span>Stämmer inte alls</span><span>Stämmer helt</span></div>`;
+    $("#ofi").innerHTML=i>0?`<button class="btn ghost" id="bk">Tillbaka</button>`:"";
+    if(i>0) $("#bk").onclick=()=>{i--;show()};
+    $("#ob").querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{ ans[i]=+b.dataset.n; i++; setTimeout(show,150) });
+  }; show();
+}
+function attResult(ans){
+  const avg=d=>{ const v=ATT_Q.map((q,i)=>q.d===d?ans[i]:null).filter(x=>x!==null); return v.reduce((a,b)=>a+b,0)/v.length };
+  const a=avg("a"), v=avg("v");
+  const r = a>3&&v>3?"fearful": a>3?"anxious": v>3?"avoidant":"secure";
+  S.att={r,a,v}; if(!S.attXp){S.xp+=15;S.attXp=1} markDay(); save();
+  const R=ATT_RES[r];
+  $("#ob").innerHTML=`<div class="big">${R.e}</div><h2 class="q" style="text-align:center">Du lutar åt: ${R.n}</h2><p class="txt">${R.p}</p>
+    <div class="card"><p style="margin:0">Oro</p><div class="meter"><i style="width:${(a-1)/4*100}%;background:var(--rose)"></i></div><p style="margin:0">Undvikande</p><div class="meter"><i style="width:${(v-1)/4*100}%;background:var(--teal)"></i></div><p class="note" style="margin:6px 0 0;text-align:left">Inspirerat av forskningens två skalor. Ett självtest för reflektion – inte en diagnos.</p></div>`;
+  $("#ofi").innerHTML=`<button class="btn" id="go">Klart</button>`; $("#go").onclick=closeLesson; confetti();
+}
+function roleQuiz(){
+  quizShell(); const ans=[]; let i=0;
+  const show=()=>{
+    $("#pg").style.width=(i/ROLE_Q.length*100)+"%";
+    if(i>=ROLE_Q.length) return roleResult(ans);
+    const q=ROLE_Q[i];
+    $("#ob").innerHTML=`<div class="kicker">Fråga ${i+1} av ${ROLE_Q.length}</div><h2 class="q">${esc(q.q)}</h2>`+q.o.map(([t,k])=>`<button class="opt" data-k="${k}">${esc(t)}</button>`).join("");
+    $("#ofi").innerHTML="";
+    $("#ob").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ b.classList.add("sel"); ans[i]=b.dataset.k; i++; setTimeout(show,200) });
+  }; show();
+}
+function roleResult(ans){
+  const c={}; ans.forEach(k=>c[k]=(c[k]||0)+1);
+  const r=Object.keys(c).sort((x,y)=>c[y]-c[x])[0];
+  S.role=r; if(!S.roleXp){S.xp+=10;S.roleXp=1} markDay(); save();
+  const R=ROLE_RES[r];
+  $("#ob").innerHTML=`<div class="big">${R.e}</div><h2 class="q" style="text-align:center">Din oroliga roll: ${R.n}</h2><p class="txt">${R.p}</p><p class="note">Martyren, mamman och managern är inspirerade av Margarita Nazarenkos podcast BEING HER. Detektiven är tillagd för den som kollar och letar tecken.</p>`;
+  $("#ofi").innerHTML=`<button class="btn" id="go">Klart</button>`; $("#go").onclick=closeLesson; confetti();
+}
+
+/* =========================================================
+   CARROTS, TOAST, CONFETTI
+   ========================================================= */
+function openCarrot(u){
+  const first=!S.carrots[u.id];
+  if(first){ S.carrots[u.id]=true; S.xp+=20; save() }
+  const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="sheet"><div class="big">${u.carrot.icon}</div><div class="kicker" style="text-align:center">🥕 ${first?"Ny morot upplåst! +20 XP":"Din morot"}</div><h2 class="q" style="text-align:center">${esc(u.carrot.title)}</h2><p class="txt">${esc(u.carrot.text)}</p><div class="mission" style="margin:14px 0"><div class="txt"><b>Uppdrag:</b> ${esc(u.carrot.mission)}</div></div><button class="btn" id="mc">Härligt</button></div>`;
+  document.body.appendChild(m);
+  m.onclick=e=>{ if(e.target===m||e.target.id==="mc"){ m.remove(); render() } };
+  if(first) confetti();
+}
+function toast(ic,t){
+  const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="sheet" style="text-align:center"><div class="big" style="font-size:44px;margin:0">${ic}</div><p class="txt">${esc(t)}</p><button class="btn ghost">Okej</button></div>`;
+  document.body.appendChild(m); m.onclick=()=>m.remove();
+}
+function confetti(){
+  const cols=["#ff6b8b","#9b7bff","#ff9f45","#2bb3a3","#ffc800"];
+  for(let i=0;i<40;i++){ const c=document.createElement("i"); c.className="confetti"; c.style.left=Math.random()*100+"vw"; c.style.background=cols[i%5]; c.style.animationDuration=(1.6+Math.random()*1.4)+"s"; c.style.animationDelay=Math.random()*.3+"s"; document.body.appendChild(c); setTimeout(()=>c.remove(),3500) }
+}
+
+render();
+</script>
+</body>
+</html>
